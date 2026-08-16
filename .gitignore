@@ -1,0 +1,51 @@
+# =========================
+# .NET / ASP.NET Core
+# =========================
+
+**/bin/
+**/obj/
+**/.vs/
+**/*.user
+**/*.suo
+
+# ASP.NET local settings / secrets
+**/appsettings.Development.json
+**/appsettings.Local.json
+**/secrets.json
+
+# =========================
+# Angular / Node
+# =========================
+
+**/node_modules/
+**/dist/
+**/.angular/
+**/.cache/
+
+# Angular environment files containing local secrets
+**/src/environments/environment.local.ts
+
+# =========================
+# Logs
+# =========================
+
+*.log
+logs/
+
+# =========================
+# OS
+# =========================
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# =========================
+# IDE
+# =========================
+
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json

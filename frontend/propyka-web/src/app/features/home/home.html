@@ -1,0 +1,14 @@
+<div class="home-container">
+  <h1>Welcome to Propyka</h1>
+
+  <h2>{{ message() }}</h2>
+
+  @if (userId()) {
+    <p>User ID: {{ userId() }}</p>
+  }
+
+  <button (click)="logout()">
+  Logout
+</button>
+
+</div>
