@@ -1,6 +1,10 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Propyka.Api.Data;
+using Propyka.Api.Authorization;
+using Propyka.Api.Identity;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,14 +29,30 @@ builder.Services
         options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
     })
     .AddRoles<IdentityRole>()
+    .AddSignInManager<PropykaSignInManager>()
     .AddEntityFrameworkStores<PropykaIdentityDbContext>();
 
-builder.Services.AddAuthorization();
+builder.Services.AddScoped<IAuthorizationHandler, ActiveUserHandler>();
+
+builder.Services.AddAuthorization(options =>
+{
+    var activeUser = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .AddRequirements(new ActiveUserRequirement())
+        .Build();
+
+    options.AddPolicy("ActiveUser", activeUser);
+
+    // Every plain [Authorize] now also requires a non-deleted account.
+    options.DefaultPolicy = activeUser;
+});
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
+    options.CustomSchemaIds(type => type.FullName?.Replace("+", "."));
+
     options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -72,6 +92,11 @@ builder.Services.AddCors(options =>
 
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    await IdentitySeeder.SeedAsync(scope.ServiceProvider);
+}
 
 if (app.Environment.IsDevelopment())
 {
