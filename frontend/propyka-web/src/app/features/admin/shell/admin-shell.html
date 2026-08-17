@@ -1,0 +1,72 @@
+<div class="admin">
+
+  <!-- Sidebar -->
+  <aside class="side">
+
+    <a class="pk-brand side__brand" routerLink="/home">
+      <span class="pk-mark" aria-hidden="true">P</span>
+      <span>Propyka</span>
+    </a>
+
+    <span class="pk-label side__tag">Administration</span>
+
+    <nav class="nav" aria-label="Admin sections">
+
+      <a class="nav__item" routerLink="/admin/users" routerLinkActive="nav__item--active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="9" cy="8" r="3.4" />
+          <path d="M2.8 19.4c0-3.2 2.8-5.2 6.2-5.2s6.2 2 6.2 5.2" />
+          <path d="M16.4 5.2a3.2 3.2 0 0 1 0 6.2" />
+          <path d="M18 14.6c2.1.5 3.4 1.9 3.4 4.1" />
+        </svg>
+        Users
+      </a>
+
+      <span class="nav__item nav__item--soon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 10.4 12 3.2l9 7.2" />
+          <path d="M5.6 9.3V20.4h12.8V9.3" />
+        </svg>
+        Listings
+        <span class="nav__soon">Soon</span>
+      </span>
+
+    </nav>
+
+    <a class="side__back" routerLink="/home">
+      <span aria-hidden="true">←</span>
+      Back to Propyka
+    </a>
+
+  </aside>
+
+
+  <!-- Content -->
+  <div class="body">
+
+    <header class="bar">
+      <span class="pk-label">Admin console</span>
+
+      <div class="bar__actions">
+        <app-theme-toggle />
+
+        <span class="who">
+          <span class="who__avatar" aria-hidden="true">{{ initial() }}</span>
+          <span class="who__name">{{ auth.displayName() || auth.profile()?.email }}</span>
+        </span>
+
+        <button type="button" class="pk-btn pk-btn--ghost" (click)="logout()">
+          Log out
+        </button>
+      </div>
+    </header>
+
+    <main class="content">
+      <router-outlet />
+    </main>
+
+  </div>
+
+</div>

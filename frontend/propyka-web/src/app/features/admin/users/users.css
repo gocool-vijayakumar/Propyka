@@ -1,0 +1,524 @@
+:host {
+  display: block;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+
+/* =========================
+   HEAD
+   ========================= */
+
+.head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--sp-4);
+
+  margin-bottom: var(--sp-5);
+}
+
+.head__title {
+  margin-top: var(--sp-2);
+
+  font-size: var(--fs-3xl);
+  font-weight: 800;
+  letter-spacing: var(--tr-display);
+}
+
+.head__count {
+  color: var(--text-3);
+
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+}
+
+
+/* =========================
+   TOOLBAR
+   ========================= */
+
+.tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+
+  margin-bottom: var(--sp-4);
+}
+
+.search {
+  position: relative;
+  flex: 1;
+  max-width: 22rem;
+}
+
+.search__icon {
+  position: absolute;
+  top: 50%;
+  left: 13px;
+  transform: translateY(-50%);
+
+  width: 16px;
+  height: 16px;
+
+  color: var(--text-3);
+  pointer-events: none;
+}
+
+.search__input {
+  padding-left: 38px;
+}
+
+.segmented {
+  display: flex;
+  gap: 2px;
+
+  padding: 3px;
+
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+
+.segmented__item {
+  padding: var(--sp-2) var(--sp-4);
+
+  border: none;
+  border-radius: var(--r-sm);
+
+  background: none;
+  color: var(--text-2);
+
+  font-size: var(--fs-sm);
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition:
+    background-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease);
+}
+
+.segmented__item:hover {
+  color: var(--text-1);
+}
+
+.segmented__item--on {
+  background: var(--surface);
+  color: var(--text-1);
+  box-shadow: var(--shadow-sm);
+}
+
+
+/* =========================
+   PANEL + TABLE
+   ========================= */
+
+.panel {
+  padding: 0;
+  overflow: hidden;
+
+  box-shadow: var(--shadow-sm);
+}
+
+.state {
+  padding: var(--sp-7) var(--sp-5);
+
+  color: var(--text-3);
+  font-size: var(--fs-base);
+  text-align: center;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  padding: var(--sp-3) var(--sp-4);
+
+  border-bottom: 1px solid var(--border);
+
+  background: var(--surface-2);
+  color: var(--text-3);
+
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  font-weight: 500;
+  letter-spacing: var(--tr-label);
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.table td {
+  padding: var(--sp-3) var(--sp-4);
+
+  border-bottom: 1px solid var(--hairline);
+
+  font-size: var(--fs-base);
+  vertical-align: middle;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background: var(--surface-2);
+}
+
+.row--deleted .who__name,
+.row--deleted .who__email {
+  opacity: 0.6;
+}
+
+.who {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.who__avatar {
+  flex-shrink: 0;
+
+  width: 32px;
+  height: 32px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 50%;
+
+  background: var(--brand-soft);
+  color: var(--brand-ink);
+
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+}
+
+.who__name {
+  display: block;
+
+  font-size: var(--fs-base);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.who__email {
+  display: block;
+
+  color: var(--text-3);
+  font-size: var(--fs-sm);
+}
+
+.muted {
+  color: var(--text-3);
+  font-size: var(--fs-sm);
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+}
+
+
+/* =========================
+   PILLS + TAGS
+   ========================= */
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1);
+}
+
+.pill {
+  padding: 3px 9px;
+
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+
+  background: var(--surface-2);
+  color: var(--text-2);
+
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.04em;
+}
+
+.pill--admin {
+  border-color: var(--brand-line);
+  background: var(--brand-soft);
+  color: var(--brand-ink);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+
+  padding: 4px 10px;
+
+  border-radius: var(--r-pill);
+
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.tag--active {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.tag--deleted {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.tag--locked {
+  background: var(--surface-2);
+  color: var(--text-2);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+
+  border-radius: 50%;
+  background: var(--success);
+}
+
+
+/* =========================
+   ROW ACTIONS
+   ========================= */
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--sp-4);
+}
+
+.link {
+  padding: 0;
+
+  border: none;
+  background: none;
+
+  color: var(--text-2);
+
+  font-size: var(--fs-sm);
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.link:hover {
+  color: var(--text-1);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.link--danger {
+  color: var(--danger);
+}
+
+.link--danger:hover {
+  color: var(--danger);
+}
+
+
+/* =========================
+   PAGER
+   ========================= */
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-4);
+
+  margin-top: var(--sp-4);
+}
+
+
+/* =========================
+   DIALOG
+   ========================= */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+
+  display: grid;
+  place-items: center;
+
+  padding: var(--sp-4);
+
+  background: color-mix(in srgb, var(--text-1) 42%, transparent);
+}
+
+.dialog {
+  width: min(26rem, 100%);
+  padding: var(--sp-5);
+
+  box-shadow: var(--shadow-lg);
+}
+
+.dialog__title {
+  font-size: var(--fs-xl);
+  letter-spacing: -0.02em;
+}
+
+.dialog__text {
+  margin: var(--sp-3) 0 var(--sp-5);
+
+  color: var(--text-2);
+  font-size: var(--fs-base);
+  line-height: 1.6;
+}
+
+.dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--sp-3);
+}
+
+.dialog__confirm {
+  width: auto;
+}
+
+.roles {
+  margin: 0 0 var(--sp-5);
+  padding: 0;
+
+  list-style: none;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.role {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+
+  padding: var(--sp-3);
+
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+
+  font-size: var(--fs-base);
+
+  cursor: pointer;
+}
+
+.role:hover {
+  border-color: var(--border-strong);
+}
+
+.role input {
+  width: 16px;
+  height: 16px;
+
+  accent-color: var(--brand);
+  cursor: pointer;
+}
+
+
+/* =========================
+   MOBILE — table becomes cards
+   ========================= */
+
+@media (max-width: 820px) {
+
+  .tools {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search {
+    max-width: none;
+  }
+
+  .panel {
+    background: none;
+    border: none;
+    box-shadow: none;
+  }
+
+  .table,
+  .table tbody,
+  .table tr,
+  .table td {
+    display: block;
+    width: 100%;
+  }
+
+  .table thead {
+    display: none;
+  }
+
+  .table tr {
+    margin-bottom: var(--sp-3);
+    padding: var(--sp-4);
+
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+  }
+
+  .table tbody tr:hover {
+    background: var(--surface);
+  }
+
+  .table td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-4);
+
+    padding: var(--sp-2) 0;
+    border-bottom: none;
+  }
+
+  .table td[data-label]::before {
+    content: attr(data-label);
+
+    color: var(--text-3);
+
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: var(--tr-label);
+    text-transform: uppercase;
+  }
+
+  .table td[data-label='Account'] {
+    justify-content: flex-start;
+
+    padding-bottom: var(--sp-3);
+    margin-bottom: var(--sp-2);
+
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .table td[data-label='Account']::before {
+    display: none;
+  }
+
+  .actions {
+    justify-content: flex-end;
+  }
+}

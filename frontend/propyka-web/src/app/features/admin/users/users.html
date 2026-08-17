@@ -1,0 +1,260 @@
+<section class="head">
+  <div>
+    <span class="pk-label pk-label--brand">Accounts</span>
+    <h1 class="head__title">Users</h1>
+  </div>
+
+  <span class="head__count">
+    {{ total() }} {{ total() === 1 ? 'account' : 'accounts' }}
+  </span>
+</section>
+
+
+<!-- Toolbar -->
+<section class="tools">
+
+  <div class="search">
+    <svg class="search__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+      <circle cx="11" cy="11" r="6.4" />
+      <path d="m16 16 4.4 4.4" />
+    </svg>
+
+    <input
+      class="pk-input search__input"
+      type="search"
+      placeholder="Search name or email"
+      aria-label="Search users"
+      (input)="onSearchInput($any($event.target).value)"
+    />
+  </div>
+
+  <div class="segmented" role="group" aria-label="Filter by status">
+    <button type="button" [class.segmented__item--on]="status() === 'active'"
+            class="segmented__item" (click)="setStatus('active')">Active</button>
+
+    <button type="button" [class.segmented__item--on]="status() === 'deleted'"
+            class="segmented__item" (click)="setStatus('deleted')">Deleted</button>
+
+    <button type="button" [class.segmented__item--on]="status() === 'all'"
+            class="segmented__item" (click)="setStatus('all')">All</button>
+  </div>
+
+</section>
+
+
+<!-- Error -->
+@if (errorMessage()) {
+  <p class="pk-alert" role="alert">
+    <svg class="pk-alert__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7.6v5.2M12 16.4h.01" />
+    </svg>
+    <span>{{ errorMessage() }}</span>
+  </p>
+}
+
+
+<!-- Table -->
+<section class="pk-card panel">
+
+  @if (isLoading()) {
+    <p class="state">Loading accounts…</p>
+  } @else if (users().length === 0) {
+    <p class="state">
+      No accounts match this view. Try a different search or status filter.
+    </p>
+  } @else {
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Account</th>
+          <th scope="col">Roles</th>
+          <th scope="col">Joined</th>
+          <th scope="col">Status</th>
+          <th scope="col"><span class="sr-only">Actions</span></th>
+        </tr>
+      </thead>
+
+      <tbody>
+        @for (user of users(); track user.id) {
+          <tr [class.row--deleted]="user.isDeleted">
+
+            <td data-label="Account">
+              <div class="who">
+                <span class="who__avatar" aria-hidden="true">{{ initial(user) }}</span>
+
+                <div>
+                  <strong class="who__name">
+                    {{ user.firstName }} {{ user.lastName }}
+                  </strong>
+                  <span class="who__email">{{ user.email }}</span>
+                </div>
+              </div>
+            </td>
+
+            <td data-label="Roles">
+              <span class="pills">
+                @for (role of user.roles; track role) {
+                  <span class="pill" [class.pill--admin]="role === 'Admin'">{{ role }}</span>
+                } @empty {
+                  <span class="muted">None</span>
+                }
+              </span>
+            </td>
+
+            <td data-label="Joined">
+              <span class="muted mono">{{ user.createdAt | date:'d MMM yyyy' }}</span>
+            </td>
+
+            <td data-label="Status">
+              @if (user.isDeleted) {
+                <span class="tag tag--deleted">
+                  Deleted {{ user.deletedAt | date:'d MMM' }}
+                </span>
+              } @else if (user.isLockedOut) {
+                <span class="tag tag--locked">Locked out</span>
+              } @else {
+                <span class="tag tag--active">
+                  <span class="dot" aria-hidden="true"></span>
+                  Active
+                </span>
+              }
+            </td>
+
+            <td data-label="Actions">
+              <div class="actions">
+                @if (canAction(user)) {
+                  <button type="button" class="link" (click)="editRoles(user)">
+                    Roles
+                  </button>
+
+                  @if (user.isDeleted) {
+                    <button type="button" class="link" (click)="confirm(user, 'restore')">
+                      Restore
+                    </button>
+                  } @else {
+                    <button type="button" class="link link--danger"
+                            (click)="confirm(user, 'trash')">
+                      Delete
+                    </button>
+                  }
+                } @else {
+                  <span class="muted">You</span>
+                }
+              </div>
+            </td>
+
+          </tr>
+        }
+      </tbody>
+    </table>
+
+  }
+
+</section>
+
+
+<!-- Pagination -->
+@if (totalPages() > 1) {
+  <nav class="pager" aria-label="Pagination">
+    <button type="button" class="pk-btn pk-btn--ghost"
+            [disabled]="page() === 1" (click)="goToPage(page() - 1)">
+      Previous
+    </button>
+
+    <span class="pk-label">Page {{ page() }} of {{ totalPages() }}</span>
+
+    <button type="button" class="pk-btn pk-btn--ghost"
+            [disabled]="page() === totalPages()" (click)="goToPage(page() + 1)">
+      Next
+    </button>
+  </nav>
+}
+
+
+<!-- Confirm dialog -->
+@if (pendingUser(); as user) {
+  <div class="overlay" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+    <div class="pk-card dialog">
+
+      <h2 class="dialog__title" id="confirm-title">
+        @if (pendingAction() === 'trash') {
+          Delete this account?
+        } @else {
+          Restore this account?
+        }
+      </h2>
+
+      <p class="dialog__text">
+        @if (pendingAction() === 'trash') {
+          {{ user.email }} will no longer be able to sign in. The account is kept
+          and stays visible to admins under the Deleted filter, so you can
+          restore it later.
+        } @else {
+          {{ user.email }} will be able to sign in again straight away.
+        }
+      </p>
+
+      <div class="dialog__actions">
+        <button type="button" class="pk-btn pk-btn--ghost" (click)="cancelConfirm()">
+          Cancel
+        </button>
+
+        <button type="button" class="pk-btn pk-btn--primary dialog__confirm"
+                [disabled]="isWorking()" (click)="runPendingAction()">
+          @if (isWorking()) {
+            <span class="pk-spinner" aria-hidden="true"></span>
+          }
+          {{ pendingAction() === 'trash' ? 'Delete account' : 'Restore account' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+}
+
+
+<!-- Role editor -->
+@if (rolesUser(); as user) {
+  <div class="overlay" role="dialog" aria-modal="true" aria-labelledby="roles-title">
+    <div class="pk-card dialog">
+
+      <h2 class="dialog__title" id="roles-title">Roles</h2>
+
+      <p class="dialog__text">{{ user.email }}</p>
+
+      <ul class="roles">
+        @for (role of allRoles; track role) {
+          <li>
+            <label class="role">
+              <input
+                type="checkbox"
+                [checked]="draftRoles().includes(role)"
+                (change)="toggleRole(role)"
+              />
+              <span>{{ role }}</span>
+            </label>
+          </li>
+        }
+      </ul>
+
+      <div class="dialog__actions">
+        <button type="button" class="pk-btn pk-btn--ghost" (click)="cancelRoles()">
+          Cancel
+        </button>
+
+        <button type="button" class="pk-btn pk-btn--primary dialog__confirm"
+                [disabled]="isWorking()" (click)="saveRoles()">
+          @if (isWorking()) {
+            <span class="pk-spinner" aria-hidden="true"></span>
+          }
+          Save roles
+        </button>
+      </div>
+
+    </div>
+  </div>
+}
