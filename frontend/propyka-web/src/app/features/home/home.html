@@ -1,14 +1,170 @@
-<div class="home-container">
-  <h1>Welcome to Propyka</h1>
+<div class="shell pk-grid-bg">
 
-  <h2>{{ message() }}</h2>
+  <!-- Top bar -->
+  <header class="topbar">
+    <div class="topbar__inner">
 
-  @if (userId()) {
-    <p>User ID: {{ userId() }}</p>
-  }
+      <div class="pk-brand">
+        <span class="pk-mark" aria-hidden="true">P</span>
+        <span>Propyka</span>
+      </div>
 
-  <button (click)="logout()">
-  Logout
-</button>
+      <div class="topbar__actions">
+        @if (auth.isAdmin()) {
+          <a class="pk-btn pk-btn--ghost" routerLink="/admin/users">Admin</a>
+        }
+
+        <app-theme-toggle />
+
+        <span class="avatar" aria-hidden="true">{{ initial() }}</span>
+
+        <button type="button" class="pk-btn pk-btn--ghost" (click)="logout()">
+          Log out
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+
+  <main class="page">
+
+    <!-- Hero -->
+    <section class="hero">
+      <span class="pk-label pk-label--brand">Your account</span>
+
+      <h1 class="hero__title">
+        @if (firstName()) {
+          Welcome back, <em>{{ firstName() }}</em>
+        } @else {
+          Welcome back to <em>Propyka</em>
+        }
+      </h1>
+
+      <p class="hero__text">
+        Pick up where you left off: browse listings, source what the
+        property needs, or line up the trades to do the work.
+      </p>
+    </section>
+
+
+    <!-- Pillars -->
+    <section class="tiles" aria-label="What you can do">
+
+      <article class="pk-card tile">
+        <span class="tile__icon tile__icon--listings" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10.4 12 3.2l9 7.2" />
+            <path d="M5.6 9.3V20.4h12.8V9.3" />
+            <path d="M9.8 20.4v-5.2h4.4v5.2" />
+          </svg>
+        </span>
+
+        <div class="tile__body">
+          <h2 class="tile__title">Listings</h2>
+
+          <p class="tile__text">
+            Search properties to buy, sell or rent, and keep the ones
+            worth a second look.
+          </p>
+        </div>
+
+        <button type="button" class="tile__link">
+          Browse listings
+          <span class="tile__arrow" aria-hidden="true">→</span>
+        </button>
+      </article>
+
+
+      <article class="pk-card tile">
+        <span class="tile__icon tile__icon--market" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4.2 9.4h15.6v11H4.2z" />
+            <path d="M3 9.4 4.6 3.6h14.8L21 9.4" />
+            <path d="M9.6 20.4v-6.2h4.8v6.2" />
+          </svg>
+        </span>
+
+        <div class="tile__body">
+          <h2 class="tile__title">Marketplace</h2>
+
+          <p class="tile__text">
+            Source materials, fittings and services from suppliers
+            near the property.
+          </p>
+        </div>
+
+        <button type="button" class="tile__link">
+          Open marketplace
+          <span class="tile__arrow" aria-hidden="true">→</span>
+        </button>
+      </article>
+
+
+      <article class="pk-card tile">
+        <span class="tile__icon tile__icon--trades" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16.4 3.6a4.6 4.6 0 0 0-4.3 6.1L4 17.8 6.2 20l8.1-8.1a4.6 4.6 0 0 0 6.1-4.3l-2.9 2.9-2.8-.7-.7-2.8z" />
+          </svg>
+        </span>
+
+        <div class="tile__body">
+          <h2 class="tile__title">Trades</h2>
+
+          <p class="tile__text">
+            Hire verified electricians, plumbers and builders, and
+            track the jobs they are on.
+          </p>
+        </div>
+
+        <button type="button" class="tile__link">
+          Find a professional
+          <span class="tile__arrow" aria-hidden="true">→</span>
+        </button>
+      </article>
+
+    </section>
+
+
+    <!-- Account read-out from the protected API -->
+    <section class="pk-card session" aria-label="Account details">
+
+      <div class="session__cell">
+        <span class="pk-label">Status</span>
+
+        <p class="session__value">
+          <span class="dot" [class.dot--idle]="!auth.profile()" aria-hidden="true"></span>
+          @if (loadFailed()) {
+            Could not load account
+          } @else if (auth.profile()) {
+            Signed in
+          } @else {
+            Checking…
+          }
+        </p>
+      </div>
+
+      <div class="session__cell">
+        <span class="pk-label">Email</span>
+
+        <p class="session__value session__value--mono" [title]="auth.profile()?.email">
+          {{ auth.profile()?.email || '—' }}
+        </p>
+      </div>
+
+      <div class="session__cell">
+        <span class="pk-label">Roles</span>
+
+        <p class="session__value">
+          {{ auth.profile()?.roles?.join(', ') || '—' }}
+        </p>
+      </div>
+
+    </section>
+
+  </main>
 
 </div>

@@ -1,0 +1,248 @@
+:host {
+  display: block;
+}
+
+
+/* =========================
+   PAGE
+   ========================= */
+
+.reg {
+  min-height: 100vh;
+  min-height: 100dvh;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: var(--sp-5) clamp(1.25rem, 5vw, 3.5rem) var(--sp-6);
+}
+
+.reg__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding-bottom: var(--sp-5);
+}
+
+.reg__main {
+  flex: 1;
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+
+  padding-top: var(--sp-2);
+}
+
+
+/* =========================
+   CARD
+   ========================= */
+
+.card {
+  width: min(31rem, 100%);
+
+  padding: var(--sp-6) clamp(1.5rem, 3vw, 2.25rem) var(--sp-5);
+
+  animation: rise 0.45s var(--ease) both;
+}
+
+.card__tag {
+  margin-bottom: var(--sp-4);
+}
+
+.card__title {
+  font-size: var(--fs-2xl);
+  letter-spacing: -0.03em;
+}
+
+.card__sub {
+  margin: var(--sp-2) 0 var(--sp-6);
+
+  color: var(--text-3);
+  font-size: var(--fs-base);
+  line-height: 1.55;
+}
+
+.card__foot {
+  margin-top: var(--sp-5);
+  padding-top: var(--sp-4);
+
+  border-top: 1px solid var(--hairline);
+
+  color: var(--text-3);
+  font-size: var(--fs-sm);
+  text-align: center;
+}
+
+.card__foot a {
+  font-weight: 600;
+}
+
+
+/* =========================
+   FIELDS
+   ========================= */
+
+.name-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-3);
+}
+
+.field-note {
+  margin-top: var(--sp-2);
+
+  color: var(--danger);
+  font-size: var(--fs-xs);
+}
+
+.pw {
+  position: relative;
+}
+
+.pw .pk-input {
+  padding-right: 46px;
+}
+
+.pw__toggle {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+
+  width: 34px;
+  height: 34px;
+
+  display: grid;
+  place-items: center;
+
+  border: none;
+  border-radius: var(--r-sm);
+
+  background: none;
+  color: var(--text-3);
+
+  cursor: pointer;
+
+  transition: color var(--dur-fast) var(--ease);
+}
+
+.pw__toggle:hover {
+  color: var(--text-1);
+}
+
+
+/* =========================
+   PASSWORD RULES
+   ========================= */
+
+.rules {
+  margin: var(--sp-3) 0 0;
+  padding: var(--sp-3) var(--sp-4);
+
+  list-style: none;
+
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-2) var(--sp-3);
+
+  background: var(--surface-2);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+}
+
+.rule {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+
+  color: var(--text-3);
+
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.01em;
+  line-height: 1.3;
+
+  transition: color var(--dur-fast) var(--ease);
+}
+
+.rule--met {
+  color: var(--success);
+}
+
+.rule__icon {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+}
+
+/* Last rule spans both columns so the grid doesn't leave a gap */
+.rule:last-child {
+  grid-column: 1 / -1;
+}
+
+
+/* =========================
+   MOTION
+   ========================= */
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+
+/* =========================
+   MOBILE
+   ========================= */
+
+@media (max-width: 600px) {
+
+  .reg {
+    padding: var(--sp-3) var(--sp-4) var(--sp-5);
+  }
+
+  .reg__bar {
+    padding-bottom: var(--sp-3);
+  }
+
+  .card {
+    padding: var(--sp-5) var(--sp-4);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .card__title {
+    font-size: var(--fs-xl);
+  }
+
+  .card__sub {
+    margin-bottom: var(--sp-5);
+  }
+
+  /* iOS zooms the page when an input's font-size is under 16px. */
+  .pk-input {
+    font-size: var(--fs-md);
+  }
+
+  .rules {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+
+@media (max-width: 420px) {
+
+  .name-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+}

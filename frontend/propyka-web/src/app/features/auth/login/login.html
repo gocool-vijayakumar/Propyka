@@ -1,55 +1,211 @@
-<div class="login-container">
-  <div class="login-card">
+<div class="auth pk-grid-bg">
 
-    <h1>Propyka</h1>
-    <p>Sign in to your account</p>
+  <!-- Top bar -->
+  <header class="auth__bar">
+    <div class="pk-brand">
+      <span class="pk-mark" aria-hidden="true">P</span>
+      <span>Propyka</span>
+    </div>
 
-    <form (ngSubmit)="login()">
+    <app-theme-toggle />
+  </header>
 
-      <div class="form-group">
-        <label for="email">Email</label>
 
-        <input
-          id="email"
-          type="email"
-          name="email"
-          [(ngModel)]="email"
-          placeholder="Enter your email"
-          autocomplete="email"
-          required
-        />
-      </div>
+  <div class="auth__grid">
 
-      <div class="form-group">
-        <label for="password">Password</label>
+    <!-- Pitch -->
+    <section class="lede">
 
-        <input
-          id="password"
-          type="password"
-          name="password"
-          [(ngModel)]="password"
-          placeholder="Enter your password"
-          autocomplete="current-password"
-          required
-        />
-      </div>
+      <span class="pk-label pk-label--brand">Listings · Marketplace · Trades</span>
 
-      @if (errorMessage) {
-        <div class="error-message">
-          {{ errorMessage }}
+      <h1 class="lede__title">
+        Find it.<br />
+        Furnish it.<br />
+        <em>Fix it.</em>
+      </h1>
+
+      <p class="lede__text">
+        One account for the property you are buying, the materials
+        it needs, and the people who do the work.
+      </p>
+
+      <ul class="pillars">
+
+        <li class="pillar">
+          <span class="pillar__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 10.4 12 3.2l9 7.2" />
+              <path d="M5.6 9.3V20.4h12.8V9.3" />
+              <path d="M9.8 20.4v-5.2h4.4v5.2" />
+            </svg>
+          </span>
+
+          <span class="pillar__body">
+            <strong>Listings</strong>
+            <span>Buy, sell and rent property.</span>
+          </span>
+        </li>
+
+        <li class="pillar">
+          <span class="pillar__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4.2 9.4h15.6v11H4.2z" />
+              <path d="M3 9.4 4.6 3.6h14.8L21 9.4" />
+              <path d="M9.6 20.4v-6.2h4.8v6.2" />
+            </svg>
+          </span>
+
+          <span class="pillar__body">
+            <strong>Marketplace</strong>
+            <span>Source materials and services.</span>
+          </span>
+        </li>
+
+        <li class="pillar">
+          <span class="pillar__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16.4 3.6a4.6 4.6 0 0 0-4.3 6.1L4 17.8 6.2 20l8.1-8.1a4.6 4.6 0 0 0 6.1-4.3l-2.9 2.9-2.8-.7-.7-2.8z" />
+            </svg>
+          </span>
+
+          <span class="pillar__body">
+            <strong>Trades</strong>
+            <span>Hire verified local professionals.</span>
+          </span>
+        </li>
+
+      </ul>
+
+    </section>
+
+
+    <!-- Sign in -->
+    <section class="pk-card pk-ticks card">
+
+      <span class="pk-label card__tag">Sign in</span>
+
+      <h2 class="card__title">Welcome back</h2>
+
+      <p class="card__sub">
+        Use the email and password on your Propyka account.
+      </p>
+
+      <form (ngSubmit)="login()" novalidate>
+
+        <!-- Email -->
+        <div class="pk-field">
+          <label class="pk-field__label" for="email">Email</label>
+
+          <input
+            id="email"
+            class="pk-input"
+            type="email"
+            name="email"
+            [(ngModel)]="email"
+            placeholder="you@example.com"
+            autocomplete="email"
+            inputmode="email"
+            required
+          />
         </div>
-      }
 
-      <button type="submit" [disabled]="isLoading">
-        {{ isLoading ? 'Signing in...' : 'Sign In' }}
-      </button>
+        <!-- Password -->
+        <div class="pk-field">
 
-    </form>
+          <div class="field-row">
+            <label class="pk-field__label" for="password">Password</label>
 
-    <p class="register-link">
-      Don't have an account?
-      <a routerLink="/register">Create an account</a>
-    </p>
+            <!-- TODO: wire to /forgot-password once the route exists -->
+            <button type="button" class="field-row__link">
+              Forgot password?
+            </button>
+          </div>
+
+          <div class="pw">
+            <input
+              id="password"
+              class="pk-input"
+              [type]="showPassword ? 'text' : 'password'"
+              name="password"
+              [(ngModel)]="password"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              required
+            />
+
+            <button
+              type="button"
+              class="pw__toggle"
+              (click)="togglePassword()"
+              [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+              [attr.aria-pressed]="showPassword"
+            >
+              @if (showPassword) {
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                     stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+                  <path d="M2.4 12S6 5.8 12 5.8 21.6 12 21.6 12 18 18.2 12 18.2 2.4 12 2.4 12z" />
+                  <circle cx="12" cy="12" r="2.7" />
+                  <path d="M4 20 20 4" />
+                </svg>
+              } @else {
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                     stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+                  <path d="M2.4 12S6 5.8 12 5.8 21.6 12 21.6 12 18 18.2 12 18.2 2.4 12 2.4 12z" />
+                  <circle cx="12" cy="12" r="2.7" />
+                </svg>
+              }
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Error -->
+        <div role="alert" aria-live="polite">
+          @if (errorMessage) {
+            <p class="pk-alert">
+              <svg class="pk-alert__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 7.6v5.2M12 16.4h.01" />
+              </svg>
+
+              <span>{{ errorMessage }}</span>
+            </p>
+          }
+        </div>
+
+        <!-- Submit -->
+        <button
+          type="submit"
+          class="pk-btn pk-btn--primary"
+          [disabled]="isLoading"
+        >
+          @if (isLoading) {
+            <span class="pk-spinner" aria-hidden="true"></span>
+            Signing in
+          } @else {
+            Sign in
+          }
+        </button>
+
+      </form>
+
+      <p class="card__foot">
+        New to Propyka?
+        <a routerLink="/register">Create an account</a>
+      </p>
+
+    </section>
 
   </div>
+
+
+  <footer class="auth__foot">
+    <span class="pk-label">© 2026 Propyka</span>
+    <span class="pk-label">Contact us at <a href="https://in.linkedin.com/in/gokul-vijayakumar-23b216225">Gokul Vijayakumar</a></span>
+  </footer>
+
 </div>

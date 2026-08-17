@@ -1,47 +1,40 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { User } from '../../core/services/user';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { Auth } from '../../core/services/auth';
-import { Router } from '@angular/router';
-
-
+import { ThemeToggle } from '../../shared/theme-toggle/theme-toggle';
 
 @Component({
   selector: 'app-home',
-  imports: [],
+  imports: [ThemeToggle, RouterLink],
   templateUrl: './home.html',
   styleUrl: './home.css'
 })
 export class Home implements OnInit {
 
-  private userService = inject(User);
-  private auth = inject(Auth);
+  readonly auth = inject(Auth);
+  private router = inject(Router);
 
+  loadFailed = signal(false);
 
-  message = signal('Loading...');
-  userId = signal('');
+  initial = computed(() => {
+    const profile = this.auth.profile();
+    return (profile?.firstName || profile?.email || 'P').charAt(0).toUpperCase();
+  });
 
-private router = inject(Router);
-
-logout(): void {
-  this.auth.logout();
-  this.router.navigate(['/login']);
-}
+  firstName = computed(() => this.auth.profile()?.firstName ?? '');
 
   ngOnInit(): void {
-    console.log('Home initialized');
+    if (this.auth.profile()) {
+      return;
+    }
 
-    this.userService.getCurrentUser().subscribe({
-      next: (response) => {
-        console.log('API SUCCESS:', response);
-
-        this.message.set(response.message);
-        this.userId.set(response.userId);
-      },
-      error: (error) => {
-        console.error('API ERROR:', error);
-
-        this.message.set('Unable to load authenticated user.');
-      }
+    this.auth.loadProfile().subscribe({
+      error: () => this.loadFailed.set(true)
     });
+  }
+
+  logout(): void {
+    this.auth.logout();
+    this.router.navigate(['/login']);
   }
 }
