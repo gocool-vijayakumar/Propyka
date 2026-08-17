@@ -1,1 +1,597 @@
-/* You can add global styles to this file, and also import other style files */
+/* =============================================================
+   PROPYKA — DESIGN SYSTEM
+   Tokens, base styles, and shared UI primitives.
+   Everything visual derives from the variables in this file.
+   ============================================================= */
+
+
+/* =========================
+   1. TOKENS — NON-COLOR
+   ========================= */
+
+:root {
+
+  /* Type families */
+  --font-display: 'Bricolage Grotesque', 'Instrument Sans', system-ui, sans-serif;
+  --font-sans: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Type scale (root = 16px) */
+  --fs-label: 0.6875rem;   /* 11px — mono annotations   */
+  --fs-xs: 0.75rem;        /* 12px — helper text        */
+  --fs-sm: 0.8125rem;      /* 13px — dense UI           */
+  --fs-base: 0.875rem;     /* 14px — UI default         */
+  --fs-md: 1rem;           /* 16px — body copy          */
+  --fs-lg: 1.0625rem;      /* 17px — lede               */
+  --fs-xl: 1.25rem;        /* 20px — card titles        */
+  --fs-2xl: 1.625rem;      /* 26px — section titles     */
+  --fs-3xl: 2.25rem;       /* 36px                      */
+  --fs-display: clamp(2.75rem, 6.2vw, 4.5rem);
+
+  /* Line heights */
+  --lh-tight: 1.05;
+  --lh-snug: 1.3;
+  --lh-body: 1.65;
+
+  /* Tracking */
+  --tr-display: -0.035em;
+  --tr-title: -0.02em;
+  --tr-label: 0.16em;
+
+  /* Spacing */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 2.75rem;
+  --sp-8: 4rem;
+
+  /* Radii — architectural, tighter than the SaaS default */
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-xl: 16px;
+  --r-pill: 999px;
+
+  /* Motion */
+  --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+  --dur-fast: 0.15s;
+  --dur: 0.24s;
+
+  /* Layout */
+  --page-max: 1180px;
+  --topbar-h: 68px;
+}
+
+
+/* =========================
+   2. TOKENS — LIGHT (PAPER)
+   ========================= */
+
+:root,
+[data-theme='light'] {
+  color-scheme: light;
+
+  --bg: #edeff2;
+  --bg-grid: rgba(14, 22, 32, 0.05);
+
+  --surface: #ffffff;
+  --surface-2: #f6f7f9;
+  --surface-inset: #fafbfc;
+
+  --border: #dde1e7;
+  --border-strong: #c5ccd6;
+  --hairline: rgba(14, 22, 32, 0.09);
+
+  --text-1: #0e1620;
+  --text-2: #4e5a6a;
+  --text-3: #7c8796;
+
+  /* Brass — the single accent, used with restraint */
+  --brand: #b0812a;
+  --brand-ink: #7d590f;        /* accent text on light surfaces */
+  --brand-soft: #f8f0dd;
+  --brand-line: rgba(176, 129, 42, 0.45);
+
+  /* Primary action: ink on paper */
+  --btn-bg: #101a26;
+  --btn-bg-hover: #1d2b3c;
+  --btn-fg: #ffffff;
+
+  --success: #1f7a5c;
+  --success-soft: #e4f3ec;
+  --danger: #b42318;
+  --danger-soft: #fef4f3;
+  --danger-line: #f4c2bd;
+
+  --ring: rgba(176, 129, 42, 0.38);
+
+  --shadow-sm: 0 1px 2px rgba(14, 22, 32, 0.05);
+  --shadow-md: 0 6px 22px rgba(14, 22, 32, 0.07);
+  --shadow-lg: 0 24px 60px rgba(14, 22, 32, 0.11);
+}
+
+
+/* =========================
+   3. TOKENS — DARK (BLUEPRINT)
+   ========================= */
+
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #0a0e14;
+  --bg-grid: rgba(224, 166, 63, 0.055);
+
+  --surface: #111823;
+  --surface-2: #0e141d;
+  --surface-inset: #0c121a;
+
+  --border: #1f2836;
+  --border-strong: #2e3a4b;
+  --hairline: rgba(232, 236, 242, 0.1);
+
+  --text-1: #e8ecf2;
+  --text-2: #9aa6b6;
+  --text-3: #6b7889;
+
+  --brand: #e0a63f;
+  --brand-ink: #edb95c;
+  --brand-soft: rgba(224, 166, 63, 0.12);
+  --brand-line: rgba(224, 166, 63, 0.42);
+
+  /* Primary action inverts in the dark: brass on ink */
+  --btn-bg: #e0a63f;
+  --btn-bg-hover: #edb95c;
+  --btn-fg: #0a0e14;
+
+  --success: #4fc39a;
+  --success-soft: rgba(79, 195, 154, 0.13);
+  --danger: #f88b7f;
+  --danger-soft: rgba(248, 139, 127, 0.11);
+  --danger-line: rgba(248, 139, 127, 0.32);
+
+  --ring: rgba(224, 166, 63, 0.42);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 8px 26px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 26px 70px rgba(0, 0, 0, 0.6);
+}
+
+
+/* =========================
+   4. BASE
+   ========================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+
+  background: var(--bg);
+  color: var(--text-1);
+
+  font-family: var(--font-sans);
+  font-size: var(--fs-base);
+  line-height: var(--lh-body);
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  transition:
+    background-color var(--dur) var(--ease),
+    color var(--dur) var(--ease);
+}
+
+h1, h2, h3, h4 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: var(--lh-snug);
+  letter-spacing: var(--tr-title);
+  color: var(--text-1);
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--brand-ink);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+::selection {
+  background: var(--brand-soft);
+  color: var(--text-1);
+}
+
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+
+
+/* The drafting grid — Propyka's ambient texture.
+   Applied to a page shell via .pk-grid-bg. */
+
+.pk-grid-bg {
+  position: relative;
+  isolation: isolate;
+}
+
+.pk-grid-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+
+  background-image:
+    linear-gradient(var(--bg-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+  background-size: 72px 72px;
+  background-position: center top;
+
+  -webkit-mask-image: radial-gradient(120% 90% at 50% 0%, #000 20%, transparent 78%);
+  mask-image: radial-gradient(120% 90% at 50% 0%, #000 20%, transparent 78%);
+}
+
+
+/* =========================
+   5. PRIMITIVES — BRAND
+   ========================= */
+
+.pk-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+
+  color: var(--text-1);
+
+  font-family: var(--font-display);
+  font-size: 1.3125rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.pk-mark {
+  position: relative;
+
+  width: 36px;
+  height: 36px;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid var(--text-1);
+  border-radius: var(--r-md);
+
+  background: var(--text-1);
+  color: var(--bg);
+
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Plot tick — the mark reads as a surveyed corner */
+.pk-mark::after {
+  content: '';
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+
+  width: 7px;
+  height: 7px;
+
+  border-right: 1.5px solid var(--brand);
+  border-bottom: 1.5px solid var(--brand);
+}
+
+
+/* =========================
+   6. PRIMITIVES — LABELS
+   ========================= */
+
+.pk-label {
+  display: block;
+
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  font-weight: 500;
+  letter-spacing: var(--tr-label);
+  line-height: 1.4;
+  text-transform: uppercase;
+
+  color: var(--text-3);
+}
+
+.pk-label--brand {
+  color: var(--brand-ink);
+}
+
+
+/* =========================
+   7. PRIMITIVES — SURFACES
+   ========================= */
+
+.pk-card {
+  position: relative;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+
+  box-shadow: var(--shadow-md);
+}
+
+/* Signature: hairline corner ticks, like a drawing's crop marks */
+.pk-ticks::before,
+.pk-ticks::after {
+  content: '';
+  position: absolute;
+
+  width: 16px;
+  height: 16px;
+
+  pointer-events: none;
+}
+
+.pk-ticks::before {
+  top: -1px;
+  left: -1px;
+
+  border-top: 1.5px solid var(--brand);
+  border-left: 1.5px solid var(--brand);
+  border-top-left-radius: var(--r-xl);
+}
+
+.pk-ticks::after {
+  right: -1px;
+  bottom: -1px;
+
+  border-right: 1.5px solid var(--brand);
+  border-bottom: 1.5px solid var(--brand);
+  border-bottom-right-radius: var(--r-xl);
+}
+
+
+/* =========================
+   8. PRIMITIVES — FORM
+   ========================= */
+
+.pk-field {
+  display: block;
+  margin-bottom: var(--sp-4);
+}
+
+.pk-field__label {
+  display: block;
+  margin-bottom: var(--sp-2);
+
+  color: var(--text-2);
+
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+
+.pk-input {
+  width: 100%;
+  height: 46px;
+
+  padding: 0 var(--sp-4);
+
+  background: var(--surface-inset);
+  color: var(--text-1);
+
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  outline: none;
+
+  font-family: var(--font-sans);
+  font-size: var(--fs-base);
+
+  transition:
+    border-color var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease),
+    background-color var(--dur-fast) var(--ease);
+}
+
+.pk-input::placeholder {
+  color: var(--text-3);
+}
+
+.pk-input:hover {
+  border-color: var(--border-strong);
+}
+
+.pk-input:focus {
+  background: var(--surface);
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--ring);
+}
+
+.pk-input:focus-visible {
+  outline: none;
+}
+
+
+/* =========================
+   9. PRIMITIVES — BUTTONS
+   ========================= */
+
+.pk-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+
+  height: 46px;
+  padding: 0 var(--sp-5);
+
+  border: 1px solid transparent;
+  border-radius: var(--r-md);
+
+  background: none;
+
+  font-family: var(--font-sans);
+  font-size: var(--fs-base);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+
+  cursor: pointer;
+
+  transition:
+    background-color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease),
+    transform var(--dur-fast) var(--ease);
+}
+
+.pk-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.pk-btn--primary {
+  width: 100%;
+
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+}
+
+.pk-btn--primary:hover:not(:disabled) {
+  background: var(--btn-bg-hover);
+}
+
+.pk-btn--primary:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.pk-btn--ghost {
+  height: 38px;
+  padding: 0 var(--sp-3);
+
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+}
+
+.pk-btn--ghost:hover {
+  background: var(--surface-2);
+  color: var(--text-1);
+}
+
+.pk-icon-btn {
+  width: 38px;
+  height: 38px;
+
+  display: grid;
+  place-items: center;
+
+  background: none;
+  color: var(--text-2);
+
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+
+  cursor: pointer;
+
+  transition:
+    background-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease);
+}
+
+.pk-icon-btn:hover {
+  background: var(--surface-2);
+  color: var(--text-1);
+  border-color: var(--border-strong);
+}
+
+
+/* =========================
+   10. PRIMITIVES — FEEDBACK
+   ========================= */
+
+.pk-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+
+  margin-bottom: var(--sp-4);
+  padding: var(--sp-3) var(--sp-4);
+
+  background: var(--danger-soft);
+  border: 1px solid var(--danger-line);
+  border-radius: var(--r-md);
+
+  color: var(--danger);
+
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+}
+
+.pk-alert__icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+}
+
+.pk-spinner {
+  width: 15px;
+  height: 15px;
+
+  border: 2px solid color-mix(in srgb, var(--btn-fg) 35%, transparent);
+  border-top-color: var(--btn-fg);
+  border-radius: 50%;
+
+  animation: pk-spin 0.7s linear infinite;
+}
+
+@keyframes pk-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* =========================
+   11. MOTION PREFERENCES
+   ========================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
