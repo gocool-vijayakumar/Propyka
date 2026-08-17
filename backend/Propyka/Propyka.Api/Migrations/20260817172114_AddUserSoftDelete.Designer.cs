@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Propyka.Api.Data;
@@ -11,9 +12,11 @@ using Propyka.Api.Data;
 namespace Propyka.Api.Migrations
 {
     [DbContext(typeof(PropykaIdentityDbContext))]
-    partial class PropykaIdentityDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260817172114_AddUserSoftDelete")]
+    partial class AddUserSoftDelete
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
