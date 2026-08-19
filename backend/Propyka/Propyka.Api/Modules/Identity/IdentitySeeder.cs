@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
+using Propyka.Api.Modules.Identity.Domain;
 
-namespace Propyka.Api.Data;
+namespace Propyka.Api.Modules.Identity;
 
 public static class PropykaRoles
 {

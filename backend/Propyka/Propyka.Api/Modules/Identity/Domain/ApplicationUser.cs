@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace Propyka.Api.Data;
+namespace Propyka.Api.Modules.Identity.Domain;
 
 public class ApplicationUser : IdentityUser
 {

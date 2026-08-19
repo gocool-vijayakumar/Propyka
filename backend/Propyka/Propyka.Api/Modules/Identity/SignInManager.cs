@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
-using Propyka.Api.Data;
+using Propyka.Api.Modules.Identity.Domain;
 
-namespace Propyka.Api.Identity;
+namespace Propyka.Api.Modules.Identity;
 
 /// <summary>
 /// PasswordSignInAsync runs PreSignInCheck -> CanSignInAsync before it ever

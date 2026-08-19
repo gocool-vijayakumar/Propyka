@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Propyka.Api.Data;
+using Propyka.Api.Modules.Identity.Domain;
 
-namespace Propyka.Api.Authorization;
+namespace Propyka.Api.Modules.Identity.Autorization;
 
 public class ActiveUserRequirement : IAuthorizationRequirement
 {
