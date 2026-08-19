@@ -5,13 +5,13 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using Propyka.Api.Data;
+using Propyka.Api.Persistence;
 
 #nullable disable
 
 namespace Propyka.Api.Migrations
 {
-    [DbContext(typeof(PropykaIdentityDbContext))]
+    [DbContext(typeof(PropykaDbContext))]
     [Migration("20260817164407_AddListingsDomain")]
     partial class AddListingsDomain
     {

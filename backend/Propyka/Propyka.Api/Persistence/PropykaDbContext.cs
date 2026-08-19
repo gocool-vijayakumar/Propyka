@@ -2,15 +2,17 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Propyka.Api.Domain;
-using Property = Propyka.Api.Domain.Property;
+using Propyka.Api.Common;
+using Propyka.Api.Modules.Identity.Domain;
+using Propyka.Api.Modules.Listings.Domain;
+using Property = Propyka.Api.Modules.Listings.Domain.Property;
 
-namespace Propyka.Api.Data;
+namespace Propyka.Api.Persistence;
 
-public class PropykaIdentityDbContext : IdentityDbContext<ApplicationUser>
+public class PropykaDbContext : IdentityDbContext<ApplicationUser>
 {
-    public PropykaIdentityDbContext(
-        DbContextOptions<PropykaIdentityDbContext> options)
+    public PropykaDbContext(
+        DbContextOptions<PropykaDbContext> options)
         : base(options)
     {
     }
@@ -37,6 +39,26 @@ public class PropykaIdentityDbContext : IdentityDbContext<ApplicationUser>
 
         // Picks up every IEntityTypeConfiguration in Data/Configurations,
         // so this method stays this short as the domain grows.
-        builder.ApplyConfigurationsFromAssembly(typeof(PropykaIdentityDbContext).Assembly);
+        builder.ApplyConfigurationsFromAssembly(typeof(PropykaDbContext).Assembly);
+    }
+
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        var now = DateTimeOffset.UtcNow;
+
+        foreach (var entry in ChangeTracker.Entries<IAuditable>())
+        {
+            if (entry.State == EntityState.Added)
+            {
+                entry.Entity.CreatedAt = now;
+                entry.Entity.UpdatedAt = now;
+            }
+            else if (entry.State == EntityState.Modified)
+            {
+                entry.Entity.UpdatedAt = now;
+            }
+        }
+
+        return base.SaveChangesAsync(cancellationToken);
     }
 }
