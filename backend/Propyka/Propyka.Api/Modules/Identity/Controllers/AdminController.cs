@@ -1,12 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Propyka.Api.Data;
+using Propyka.Api.Common;
+using Propyka.Api.Modules.Identity.Contracts;
+using Propyka.Api.Modules.Identity.Domain;
+using Propyka.Api.Persistence;
 
-namespace Propyka.Api.Controllers;
+namespace Propyka.Api.Modules.Identity.Controllers;
 
 /// <summary>
 /// Admins manage accounts. Moderators can look but not touch — the read
@@ -18,25 +20,26 @@ namespace Propyka.Api.Controllers;
 public class AdminController : ControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly PropykaIdentityDbContext _db;
+    private readonly PropykaDbContext _db;
 
     public AdminController(
         UserManager<ApplicationUser> userManager,
-        PropykaIdentityDbContext db)
+        PropykaDbContext db)
     {
         _userManager = userManager;
         _db = db;
     }
 
     [HttpGet("users")]
-    public async Task<IActionResult> GetUsers(
+    [ProducesResponseType<PagedResult<AdminUserResponse>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<AdminUserResponse>>> GetUsers(
         string? search = null,
         string status = "active",
         int page = 1,
-        int pageSize = 20)
+        int pageSize = 20,
+        CancellationToken ct = default)
     {
-        page = Math.Max(page, 1);
-        pageSize = Math.Clamp(pageSize, 1, 100);
+        (page, pageSize) = PagedResult<AdminUserResponse>.Normalise(page, pageSize, 100);
 
         var query = _db.Users.AsNoTracking();
 
@@ -57,7 +60,7 @@ public class AdminController : ControllerBase
                 EF.Functions.ILike(u.LastName, term));
         }
 
-        var total = await query.CountAsync();
+        var total = await query.CountAsync(ct);
 
         var users = await query
             .OrderByDescending(u => u.CreatedAt)
@@ -74,7 +77,7 @@ public class AdminController : ControllerBase
                 u.DeletedAt,
                 u.LockoutEnd
             })
-            .ToListAsync();
+            .ToListAsync(ct);
 
         // Roles come from a join table, so they are fetched for the page only.
         var ids = users.Select(u => u.Id).ToList();
@@ -84,29 +87,26 @@ public class AdminController : ControllerBase
             join role in _db.Roles on userRole.RoleId equals role.Id
             where ids.Contains(userRole.UserId)
             select new { userRole.UserId, role.Name })
-            .ToListAsync();
+            .ToListAsync(ct);
 
-        var items = users.Select(u => new
-        {
-            u.Id,
-            u.Email,
-            u.FirstName,
-            u.LastName,
-            u.CreatedAt,
-            u.IsDeleted,
-            u.DeletedAt,
-            isLockedOut = u.LockoutEnd > DateTimeOffset.UtcNow,
-            roles = roles.Where(r => r.UserId == u.Id).Select(r => r.Name).ToList()
-        });
+        var rolesByUser = roles
+            .GroupBy(r => r.UserId)
+            .ToDictionary(g => g.Key, g => g.Select(r => r.Name!).ToList());
 
-        return Ok(new
-        {
-            page,
-            pageSize,
-            total,
-            totalPages = (int)Math.Ceiling(total / (double)pageSize),
-            items
-        });
+        var items = users
+            .Select(u => new AdminUserResponse(
+                u.Id,
+                u.Email ?? string.Empty,
+                u.FirstName,
+                u.LastName,
+                u.CreatedAt,
+                u.IsDeleted,
+                u.DeletedAt,
+                u.LockoutEnd > DateTimeOffset.UtcNow,
+                rolesByUser.TryGetValue(u.Id, out var userRoles) ? userRoles : []))
+            .ToList();
+
+        return PagedResult<AdminUserResponse>.Create(page, pageSize, total, items);
     }
 
     [HttpPost("users/{id}/trash")]
@@ -208,6 +208,3 @@ public class AdminController : ControllerBase
             .CountAsync();
     }
 }
-
-public sealed record SetRolesRequest(
-    [Required] string[] Roles);

@@ -1,10 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Propyka.Api.Data;
+using Microsoft.AspNetCore.RateLimiting;
+using Propyka.Api.Common;
+using Propyka.Api.Modules.Identity.Contracts;
+using Propyka.Api.Modules.Identity.Domain;
 
-namespace Propyka.Api.Controllers;
+namespace Propyka.Api.Modules.Identity.Controllers;
 
 /// <summary>
 /// MapIdentityApi's built-in /register only accepts email and password, so it
@@ -24,6 +26,9 @@ public class AccountController : ControllerBase
 
     [HttpPost("register")]
     [AllowAnonymous]
+    [EnableRateLimiting(RateLimitPolicies.PublicWrite)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Register(CreateAccountRequest request)
     {
         var user = new ApplicationUser
@@ -55,7 +60,8 @@ public class AccountController : ControllerBase
 
     [HttpGet("me")]
     [Authorize]
-    public async Task<IActionResult> Me()
+    [ProducesResponseType<UserProfileResponse>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<UserProfileResponse>> Me()
     {
         var user = await _userManager.GetUserAsync(User);
 
@@ -66,19 +72,18 @@ public class AccountController : ControllerBase
 
         var roles = await _userManager.GetRolesAsync(user);
 
-        return Ok(new
-        {
-            id = user.Id,
-            email = user.Email,
-            firstName = user.FirstName,
-            lastName = user.LastName,
-            createdAt = user.CreatedAt,
-            roles
-        });
+        return new UserProfileResponse(
+            user.Id,
+            user.Email!,
+            user.FirstName,
+            user.LastName,
+            user.CreatedAt,
+            roles.ToList());
     }
 
     [HttpPut("me")]
     [Authorize]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> UpdateProfile(UpdateProfileRequest request)
     {
         var user = await _userManager.GetUserAsync(User);
@@ -112,6 +117,7 @@ public class AccountController : ControllerBase
     /// </summary>
     [HttpDelete("me")]
     [Authorize]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> DeleteOwnAccount(DeleteAccountRequest request)
     {
         var user = await _userManager.GetUserAsync(User);
@@ -145,19 +151,3 @@ public class AccountController : ControllerBase
         return NoContent();
     }
 }
-
-// NOT named RegisterRequest: MapIdentityApi already publishes a
-// Microsoft.AspNetCore.Identity.Data.RegisterRequest, and Swashbuckle keys
-// schemas by short type name — two types with one name is a 500 on swagger.json.
-public sealed record CreateAccountRequest(
-    [Required, EmailAddress] string Email,
-    [Required] string Password,
-    [Required, MaxLength(60)] string FirstName,
-    [Required, MaxLength(60)] string LastName);
-
-public sealed record UpdateProfileRequest(
-    [Required, MaxLength(60)] string FirstName,
-    [Required, MaxLength(60)] string LastName);
-
-public sealed record DeleteAccountRequest(
-    [Required] string Password);
