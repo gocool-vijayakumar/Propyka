@@ -1,10 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Propyka.Api.Domain;
-using Property = Propyka.Api.Domain.Property;
+using Propyka.Api.Modules.Listings.Domain;
+using Property = Propyka.Api.Modules.Listings.Domain.Property;
 
-namespace Propyka.Api.Data.Configurations;
+namespace Propyka.Api.Modules.Listings.Configurations;
 
 public class PropertyConfiguration : IEntityTypeConfiguration<Property>
 {

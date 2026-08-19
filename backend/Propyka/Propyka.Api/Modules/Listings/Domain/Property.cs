@@ -1,8 +1,9 @@
-﻿using Propyka.Api.Data;
+﻿using Propyka.Api.Common;
+using Propyka.Api.Modules.Identity.Domain;
 
-namespace Propyka.Api.Domain;
+namespace Propyka.Api.Modules.Listings.Domain;
 
-public class Property
+public class Property : IAuditable
 {
     public Guid Id { get; set; }
 

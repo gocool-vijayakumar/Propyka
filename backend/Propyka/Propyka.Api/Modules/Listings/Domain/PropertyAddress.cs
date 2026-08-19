@@ -1,4 +1,4 @@
-﻿namespace Propyka.Api.Domain;
+﻿namespace Propyka.Api.Modules.Listings.Domain;
 
 public class PropertyAddress
 {
