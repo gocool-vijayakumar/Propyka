@@ -1,0 +1,68 @@
+<div class="shell pk-grid-bg">
+  <header class="topbar">
+    <div class="topbar__inner">
+      <a class="pk-brand" routerLink="/home"><span class="pk-mark" aria-hidden="true">P</span><span>Propyka</span></a>
+      <div class="topbar__actions">
+        <a class="pk-btn pk-btn--ghost" routerLink="/home">← Home</a>
+        <app-theme-toggle />
+        <span class="avatar" aria-hidden="true">{{ initial() }}</span>
+        <button type="button" class="pk-btn pk-btn--ghost" (click)="logout()">Log out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page">
+    <h1 class="page-title">Account</h1>
+
+    <!-- Profile edit -->
+    <section class="section pk-card">
+      <h2 class="section-title">Profile</h2>
+
+      <div class="field-row">
+        <div class="field">
+          <label class="pk-label" for="fn">First name</label>
+          <input id="fn" type="text" class="pk-input" [value]="firstName()" (input)="firstName.set($any($event.target).value)" maxlength="60" />
+        </div>
+        <div class="field">
+          <label class="pk-label" for="ln">Last name</label>
+          <input id="ln" type="text" class="pk-input" [value]="lastName()" (input)="lastName.set($any($event.target).value)" maxlength="60" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="pk-label">Email</label>
+        <input type="email" class="pk-input" [value]="auth.profile()?.email || ''" disabled />
+        <span class="field-hint">Email cannot be changed here.</span>
+      </div>
+
+      @if (saveError()) { <p class="error-msg">{{ saveError() }}</p> }
+      @if (saveSuccess()) { <p class="success-msg">Profile updated.</p> }
+
+      <button class="pk-btn" (click)="saveProfile()" [disabled]="isSaving()">
+        {{ isSaving() ? 'Saving…' : 'Save changes' }}
+      </button>
+    </section>
+
+    <!-- Delete account -->
+    <section class="section section--danger pk-card">
+      <h2 class="section-title section-title--danger">Delete account</h2>
+      <p class="danger-text">Deleting your account is permanent. Your listings and enquiries will remain visible until an admin removes them.</p>
+
+      @if (!showDeleteConfirm()) {
+        <button class="pk-btn pk-btn--danger" (click)="showDeleteConfirm.set(true)">Delete my account</button>
+      } @else {
+        <div class="field">
+          <label class="pk-label" for="del-pw">Enter your current password to confirm</label>
+          <input id="del-pw" type="password" class="pk-input" [value]="deletePassword()" (input)="deletePassword.set($any($event.target).value)" placeholder="Current password" />
+        </div>
+        @if (deleteError()) { <p class="error-msg">{{ deleteError() }}</p> }
+        <div class="delete-actions">
+          <button class="pk-btn pk-btn--ghost" (click)="showDeleteConfirm.set(false); deletePassword.set('')">Cancel</button>
+          <button class="pk-btn pk-btn--danger" (click)="deleteAccount()" [disabled]="isDeleting()">
+            {{ isDeleting() ? 'Deleting…' : 'Yes, delete my account' }}
+          </button>
+        </div>
+      }
+    </section>
+  </main>
+</div>

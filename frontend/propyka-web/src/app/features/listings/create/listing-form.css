@@ -1,0 +1,61 @@
+.shell { min-height: 100vh; display: flex; flex-direction: column; }
+.topbar { border-bottom: 1px solid var(--border); background: var(--surface-2); position: sticky; top: 0; z-index: 10; }
+.topbar__inner { max-width: 1280px; margin: 0 auto; padding: 0 1.5rem; height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.topbar__actions { display: flex; align-items: center; gap: 0.5rem; }
+.avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--bg-accent); color: var(--text-accent); display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; }
+.page { max-width: 800px; margin: 0 auto; width: 100%; padding: 2rem 1.5rem 4rem; }
+.form-shell { display: flex; flex-direction: column; gap: 1.5rem; }
+
+/* Steps bar */
+.steps-bar { display: flex; align-items: center; gap: 0; }
+.step-item { display: flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; padding: 8px 0; color: var(--text-secondary); font-size: 13px; opacity: .5; transition: opacity .2s; }
+.step-item--active { opacity: 1; color: var(--text-primary); }
+.step-item--done { opacity: .7; }
+.step-item[disabled] { cursor: not-allowed; }
+.step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--surface-0); border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; flex-shrink: 0; }
+.step-item--active .step-num { background: var(--bg-accent); border-color: var(--border-accent); color: var(--text-accent); }
+.step-item--done .step-num { background: var(--bg-success); border-color: var(--border-success); color: var(--text-success); }
+.step-connector { flex: 1; height: 1.5px; background: var(--border); margin: 0 8px; min-width: 24px; }
+
+/* Form card */
+.form-card { padding: 2rem; }
+.form-title { font-size: 22px; font-weight: 500; color: var(--text-primary); margin: 0 0 1.5rem; }
+
+/* Fields */
+.step-content { display: flex; flex-direction: column; gap: 1.25rem; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.field-hint { font-size: 11px; color: var(--text-secondary); }
+.pk-input[rows] { resize: vertical; min-height: 80px; }
+
+/* Toggle buttons */
+.btn-toggle { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.btn-toggle__item { flex: 1; padding: 8px 12px; background: none; border: none; cursor: pointer; font-size: 14px; color: var(--text-secondary); transition: background .15s, color .15s; }
+.btn-toggle__item--active { background: var(--bg-accent); color: var(--text-accent); }
+
+/* Amenity picker */
+.amenity-picker { display: flex; flex-wrap: wrap; gap: 6px; }
+.amenity-chip { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface-1); color: var(--text-secondary); font-size: 13px; cursor: pointer; transition: all .15s; }
+.amenity-chip:hover { border-color: var(--border-strong); color: var(--text-primary); }
+.amenity-chip--active { background: var(--bg-accent); border-color: var(--border-accent); color: var(--text-accent); }
+
+/* Review */
+.review-section { margin-bottom: 1.25rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border); }
+.review-section:last-of-type { border-bottom: none; }
+.review-section-title { font-size: 14px; font-weight: 500; color: var(--text-primary); margin: 0 0 0.75rem; }
+.review-grid { display: grid; grid-template-columns: 140px 1fr; gap: 8px 12px; align-items: baseline; font-size: 14px; }
+.review-note { font-size: 13px; color: var(--text-secondary); background: var(--bg-warning); border: 1px solid var(--border-warning); padding: 10px 14px; border-radius: 8px; margin: 0; }
+.review-note strong { color: var(--text-warning); }
+
+/* Error */
+.error-banner { font-size: 13px; color: var(--text-danger); background: var(--bg-danger); border: 1px solid var(--border-danger); padding: 10px 14px; border-radius: 8px; margin-bottom: 1rem; }
+
+/* Footer */
+.form-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border); }
+
+@media (max-width: 600px) {
+  .page { padding: 1rem 1rem 3rem; }
+  .form-card { padding: 1.25rem; }
+  .field-row { grid-template-columns: 1fr; }
+  .step-label { display: none; }
+}

@@ -1,0 +1,102 @@
+<div class="shell pk-grid-bg">
+  <header class="topbar">
+    <div class="topbar__inner">
+      <a class="pk-brand" routerLink="/home"><span class="pk-mark" aria-hidden="true">P</span><span>Propyka</span></a>
+      <div class="topbar__actions">
+        <a class="pk-btn pk-btn--ghost" routerLink="/listings/mine">My listings</a>
+        <app-theme-toggle />
+        <span class="avatar" aria-hidden="true">{{ initial() }}</span>
+        <button type="button" class="pk-btn pk-btn--ghost" (click)="logout()">Log out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page">
+
+    @if (isLoading()) {
+      <div class="loading-state"><div class="loading-spinner"></div></div>
+    }
+
+    @if (!isLoading() && errorMessage()) {
+      <p class="error-banner">{{ errorMessage() }}</p>
+    }
+
+    @if (!isLoading() && property()) {
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Manage photos</h1>
+          <p class="page-subtitle">{{ property()!.title }}</p>
+        </div>
+      </div>
+
+      <!-- Upload zone -->
+      <div class="upload-zone">
+        @if (isUploading()) {
+          <div class="upload-zone__uploading">
+            <div class="loading-spinner loading-spinner--sm"></div>
+            <span>Uploading…</span>
+          </div>
+        } @else {
+          <label class="upload-label" for="file-input">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <span>Click to upload a photo</span>
+            <small>JPG, PNG, WebP — max 12 MB</small>
+          </label>
+          <input id="file-input" type="file" accept="image/*" (change)="onFileChange($event)" class="visually-hidden" />
+        }
+        @if (uploadError()) {
+          <p class="upload-error">{{ uploadError() }}</p>
+        }
+      </div>
+
+      <!-- Image grid -->
+      @if (property()!.images.length === 0) {
+        <div class="no-images">
+          <p>No photos yet. Upload at least one before publishing.</p>
+        </div>
+      } @else {
+        <div class="image-grid">
+          @for (img of property()!.images; track img.id) {
+            <div class="image-card" [class.image-card--primary]="img.isPrimary">
+              <img [src]="img.url" [alt]="img.caption || 'Property photo'" />
+
+              @if (img.isPrimary) {
+                <div class="image-primary-badge">Primary</div>
+              }
+
+              <div class="image-actions">
+                @if (!img.isPrimary) {
+                  <button
+                    class="image-action-btn"
+                    (click)="setPrimary(img)"
+                    [disabled]="!!settingPrimaryId()"
+                    title="Set as primary photo"
+                  >★ Set primary</button>
+                }
+                <button
+                  class="image-action-btn image-action-btn--danger"
+                  (click)="deleteImage(img.id)"
+                  [disabled]="deletingId() === img.id"
+                  title="Delete photo"
+                >{{ deletingId() === img.id ? '…' : 'Delete' }}</button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- CTA -->
+      <div class="page-footer">
+        <a class="pk-btn pk-btn--ghost" [routerLink]="['/listings', property()!.id, 'edit']">← Back to edit</a>
+        <button class="pk-btn" (click)="doneAndPublish()">
+          {{ property()!.status === 'Draft' ? 'Publish listing →' : 'View listing →' }}
+        </button>
+      </div>
+    }
+
+  </main>
+</div>

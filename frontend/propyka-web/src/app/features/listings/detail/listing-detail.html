@@ -1,0 +1,324 @@
+<div class="shell pk-grid-bg">
+
+  <!-- Top bar -->
+  <header class="topbar">
+    <div class="topbar__inner">
+      <a class="pk-brand" routerLink="/home"><span class="pk-mark" aria-hidden="true">P</span><span>Propyka</span></a>
+      <div class="topbar__actions">
+        <a class="pk-btn pk-btn--ghost" routerLink="/listings">← All listings</a>
+        <app-theme-toggle />
+        @if (auth.isAuthenticated()) {
+          <span class="avatar" aria-hidden="true">{{ initial() }}</span>
+          <button type="button" class="pk-btn pk-btn--ghost" (click)="logout()">Log out</button>
+        } @else {
+          <a class="pk-btn" routerLink="/login">Sign in</a>
+        }
+      </div>
+    </div>
+  </header>
+
+  <main class="page">
+
+    <!-- Loading -->
+    @if (isLoading()) {
+      <div class="loading-state">
+        <div class="loading-spinner" aria-label="Loading…"></div>
+      </div>
+    }
+
+    <!-- Error -->
+    @if (!isLoading() && errorMessage()) {
+      <div class="state-empty">
+        <p class="state-empty__title">{{ errorMessage() }}</p>
+        <a class="pk-btn pk-btn--ghost" routerLink="/listings">Back to listings</a>
+      </div>
+    }
+
+    <!-- Content -->
+    @if (!isLoading() && property()) {
+      <div class="detail-layout">
+
+        <!-- Left: image gallery + info -->
+        <div class="detail-main">
+
+          <!-- Gallery -->
+          <div class="gallery">
+            @if (images().length > 0) {
+              <div class="gallery__main" [attr.aria-label]="activeImage()?.caption || property()!.title">
+                <img
+                  [src]="activeImage()!.url"
+                  [alt]="activeImage()!.caption || property()!.title"
+                />
+
+                @if (images().length > 1) {
+                  <button class="gallery__nav gallery__nav--prev" (click)="prevImage()" aria-label="Previous image">‹</button>
+                  <button class="gallery__nav gallery__nav--next" (click)="nextImage()" aria-label="Next image">›</button>
+
+                  <div class="gallery__counter">{{ activeImageIndex() + 1 }} / {{ images().length }}</div>
+                }
+              </div>
+
+              @if (images().length > 1) {
+                <div class="gallery__thumbs">
+                  @for (img of images(); track img.id; let i = $index) {
+                    <button
+                      class="gallery__thumb"
+                      [class.gallery__thumb--active]="i === activeImageIndex()"
+                      (click)="setActiveImage(i)"
+                      [attr.aria-label]="'View image ' + (i + 1)"
+                    >
+                      <img [src]="img.url" [alt]="img.caption || ''" loading="lazy" />
+                    </button>
+                  }
+                </div>
+              }
+            } @else {
+              <div class="gallery__placeholder" aria-label="No images">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/>
+                  <path d="m3 15 6-6 4 4 3-3 5 5"/><circle cx="8.5" cy="8.5" r="1.5"/>
+                </svg>
+                <p>No images yet</p>
+              </div>
+            }
+          </div>
+
+          <!-- Description -->
+          @if (property()!.description) {
+            <section class="section">
+              <h2 class="section-title">About this property</h2>
+              <p class="description">{{ property()!.description }}</p>
+            </section>
+          }
+
+          <!-- Details table -->
+          <section class="section">
+            <h2 class="section-title">Property details</h2>
+            <div class="details-grid">
+              <div class="detail-item">
+                <span class="pk-label">Type</span>
+                <span class="detail-value">{{ property()!.kind }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="pk-label">Listing</span>
+                <span class="detail-value">For {{ property()!.listingType }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="pk-label">Bedrooms</span>
+                <span class="detail-value">{{ property()!.bedrooms }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="pk-label">Bathrooms</span>
+                <span class="detail-value">{{ property()!.bathrooms }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="pk-label">Area</span>
+                <span class="detail-value">{{ property()!.areaSqFt | number:'1.0-0' }} sq ft</span>
+              </div>
+              @if (property()!.plotAreaSqFt) {
+                <div class="detail-item">
+                  <span class="pk-label">Plot area</span>
+                  <span class="detail-value">{{ property()!.plotAreaSqFt! | number:'1.0-0' }} sq ft</span>
+                </div>
+              }
+              @if (property()!.yearBuilt) {
+                <div class="detail-item">
+                  <span class="pk-label">Year built</span>
+                  <span class="detail-value">{{ property()!.yearBuilt }}</span>
+                </div>
+              }
+              @if (property()!.furnishing) {
+                <div class="detail-item">
+                  <span class="pk-label">Furnishing</span>
+                  <span class="detail-value">{{ property()!.furnishing }}</span>
+                </div>
+              }
+              <div class="detail-item">
+                <span class="pk-label">Views</span>
+                <span class="detail-value">{{ property()!.viewCount | number }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="pk-label">Listed</span>
+                <span class="detail-value">{{ property()!.publishedAt | date:'mediumDate' }}</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Amenities -->
+          @if (property()!.amenities.length > 0) {
+            <section class="section">
+              <h2 class="section-title">Amenities</h2>
+              <div class="amenity-list">
+                @for (a of property()!.amenities; track a.id) {
+                  <span class="amenity-tag">{{ a.name }}</span>
+                }
+              </div>
+            </section>
+          }
+
+          <!-- Address -->
+          <section class="section">
+            <h2 class="section-title">Location</h2>
+            <address class="address">
+              {{ property()!.address.line1 }}<br/>
+              @if (property()!.address.line2) { {{ property()!.address.line2 }}<br/> }
+              @if (property()!.address.locality) { {{ property()!.address.locality }},  }
+              {{ property()!.address.city }}, {{ property()!.address.state }}<br/>
+              {{ property()!.address.postalCode }} · {{ property()!.address.country }}
+            </address>
+          </section>
+
+        </div>
+
+        <!-- Right: sticky sidebar -->
+        <aside class="sidebar">
+          <div class="sidebar__card pk-card">
+
+            <!-- Price & status badges -->
+            <div class="sidebar__badges">
+              <span class="badge badge--type" [class.badge--rent]="property()!.listingType === 'Rent'">
+                For {{ property()!.listingType }}
+              </span>
+              <span class="badge badge--kind">{{ property()!.kind }}</span>
+              @if (property()!.status !== 'Published') {
+                <span class="badge badge--status">{{ property()!.status }}</span>
+              }
+            </div>
+
+            <p class="sidebar__price">{{ formatPrice() }}</p>
+            <h1 class="sidebar__title">{{ property()!.title }}</h1>
+
+            <p class="sidebar__location">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14" aria-hidden="true">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+              @if (property()!.address.locality) { {{ property()!.address.locality }},  }
+              {{ property()!.address.city }}, {{ property()!.address.state }}
+            </p>
+
+            <div class="sidebar__specs">
+              @if (property()!.bedrooms > 0) {
+                <div class="spec">
+                  <span class="spec__num">{{ property()!.bedrooms }}</span>
+                  <span class="spec__label">Beds</span>
+                </div>
+              }
+              @if (property()!.bathrooms > 0) {
+                <div class="spec">
+                  <span class="spec__num">{{ property()!.bathrooms }}</span>
+                  <span class="spec__label">Baths</span>
+                </div>
+              }
+              <div class="spec">
+                <span class="spec__num">{{ property()!.areaSqFt | number:'1.0-0' }}</span>
+                <span class="spec__label">Sq ft</span>
+              </div>
+            </div>
+
+            <hr class="sidebar__divider" />
+
+            <!-- Enquiry sent success -->
+            @if (enquirySent()) {
+              <div class="success-msg">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="20" height="20" aria-hidden="true">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                  <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                Your enquiry has been sent! The owner will be in touch.
+              </div>
+            }
+
+            <!-- Owner actions -->
+            @if (isOwner()) {
+              <div class="owner-actions">
+                @if (actionError()) {
+                  <p class="error-msg">{{ actionError() }}</p>
+                }
+                <a
+                  class="pk-btn pk-btn--ghost sidebar__btn"
+                  [routerLink]="['/listings', property()!.id, 'edit']"
+                >Edit listing</a>
+                <a
+                  class="pk-btn pk-btn--ghost sidebar__btn"
+                  [routerLink]="['/listings', property()!.id, 'images']"
+                >Manage photos</a>
+                @if (property()!.status === 'Draft' || property()!.status === 'Archived') {
+                  <button
+                    class="pk-btn sidebar__btn"
+                    (click)="publish()"
+                    [disabled]="actionLoading()"
+                  >{{ actionLoading() ? 'Publishing…' : 'Publish listing' }}</button>
+                }
+                @if (property()!.status === 'Published') {
+                  <button
+                    class="pk-btn pk-btn--ghost sidebar__btn"
+                    (click)="archive()"
+                    [disabled]="actionLoading()"
+                  >{{ actionLoading() ? 'Archiving…' : 'Archive listing' }}</button>
+                }
+              </div>
+
+            } @else {
+              <!-- Public actions -->
+              <div class="public-actions">
+                @if (!showEnquiryForm()) {
+                  <button class="pk-btn sidebar__btn" (click)="openEnquiry()">
+                    Contact owner
+                  </button>
+
+                  <button
+                    class="pk-btn pk-btn--ghost sidebar__btn"
+                    [class.btn--fav-active]="isFavourited()"
+                    (click)="toggleFavourite()"
+                    [disabled]="isFavLoading()"
+                  >
+                    @if (isFavourited()) { ♥ Saved } @else { ♡ Save property }
+                  </button>
+                }
+
+                @if (showEnquiryForm()) {
+                  <div class="enquiry-form">
+                    @if (enquiryError()) {
+                      <p class="error-msg">{{ enquiryError() }}</p>
+                    }
+                    <label class="pk-label" for="enq-name">Your name</label>
+                    <input id="enq-name" type="text" class="pk-input" [value]="enquiryName()" (input)="enquiryName.set($any($event.target).value)" placeholder="Full name" />
+
+                    <label class="pk-label" for="enq-email">Email</label>
+                    <input id="enq-email" type="email" class="pk-input" [value]="enquiryEmail()" (input)="enquiryEmail.set($any($event.target).value)" placeholder="you@example.com" />
+
+                    <label class="pk-label" for="enq-phone">Phone (optional)</label>
+                    <input id="enq-phone" type="tel" class="pk-input" [value]="enquiryPhone()" (input)="enquiryPhone.set($any($event.target).value)" placeholder="+91 98765 43210" />
+
+                    <label class="pk-label" for="enq-msg">Message</label>
+                    <textarea
+                      id="enq-msg" class="pk-input" rows="4"
+                      [value]="enquiryMessage()"
+                      (input)="enquiryMessage.set($any($event.target).value)"
+                      placeholder="I'm interested in this property…"
+                    ></textarea>
+
+                    <button class="pk-btn sidebar__btn" (click)="submitEnquiry()" [disabled]="enquiryLoading()">
+                      {{ enquiryLoading() ? 'Sending…' : 'Send enquiry' }}
+                    </button>
+                    <button class="pk-btn pk-btn--ghost sidebar__btn" (click)="showEnquiryForm.set(false)">Cancel</button>
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Owner info -->
+            <div class="owner-info">
+              <span class="pk-label">Listed by</span>
+              <p class="owner-name">{{ property()!.owner.fullName }}</p>
+            </div>
+
+          </div>
+        </aside>
+
+      </div>
+    }
+
+  </main>
+</div>

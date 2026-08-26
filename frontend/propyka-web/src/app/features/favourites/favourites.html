@@ -1,0 +1,65 @@
+<div class="shell pk-grid-bg">
+  <header class="topbar">
+    <div class="topbar__inner">
+      <a class="pk-brand" routerLink="/home"><span class="pk-mark" aria-hidden="true">P</span><span>Propyka</span></a>
+      <div class="topbar__actions">
+        <a class="pk-btn pk-btn--ghost" routerLink="/listings">Browse</a>
+        <app-theme-toggle />
+        <span class="avatar" aria-hidden="true">{{ initial() }}</span>
+        <button type="button" class="pk-btn pk-btn--ghost" (click)="logout()">Log out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page">
+    <h1 class="page-title">Saved properties</h1>
+
+    @if (isLoading()) {
+      <div class="loading-state"><div class="loading-spinner"></div></div>
+    }
+
+    @if (!isLoading() && errorMessage()) {
+      <p class="error-banner">{{ errorMessage() }}</p>
+    }
+
+    @if (!isLoading() && properties().length === 0 && !errorMessage()) {
+      <div class="state-empty">
+        <span class="state-empty__icon" aria-hidden="true">♡</span>
+        <p class="state-empty__title">No saved properties yet</p>
+        <p class="state-empty__text">Tap the heart on any listing to save it here.</p>
+        <a class="pk-btn" routerLink="/listings">Browse listings</a>
+      </div>
+    }
+
+    @if (!isLoading() && properties().length > 0) {
+      <p class="results-count"><strong>{{ total() }}</strong> saved</p>
+      <div class="property-grid">
+        @for (p of properties(); track p.id) {
+          <div class="property-card">
+            <a class="card-link" [routerLink]="['/listings', p.slug]">
+              <div class="card-image">
+                @if (p.primaryImageUrl) {
+                  <img [src]="p.primaryImageUrl" [alt]="p.title" loading="lazy" />
+                } @else {
+                  <div class="card-image-placeholder" aria-hidden="true"></div>
+                }
+                <span class="badge badge--type" [class.badge--rent]="p.listingType === 'Rent'">For {{ p.listingType }}</span>
+              </div>
+              <div class="card-body">
+                <p class="card-location">{{ p.locality ? p.locality + ', ' : '' }}{{ p.city }}</p>
+                <h2 class="card-title">{{ p.title }}</h2>
+                <p class="card-price">{{ formatPrice(p) }}</p>
+                <p class="card-meta">
+                  @if (p.bedrooms > 0) { {{ p.bedrooms }} bd · }
+                  @if (p.bathrooms > 0) { {{ p.bathrooms }} ba · }
+                  {{ p.areaSqFt | number:'1.0-0' }} sqft
+                </p>
+              </div>
+            </a>
+            <button class="remove-btn" (click)="removeFavourite(p.id)" title="Remove from saved">♥ Remove</button>
+          </div>
+        }
+      </div>
+    }
+  </main>
+</div>

@@ -1,0 +1,299 @@
+<div class="shell pk-grid-bg">
+
+  <!-- Top bar -->
+  <header class="topbar">
+    <div class="topbar__inner">
+      <a class="pk-brand" routerLink="/home">
+        <span class="pk-mark" aria-hidden="true">P</span>
+        <span>Propyka</span>
+      </a>
+
+      <div class="topbar__actions">
+        <a class="pk-btn pk-btn--ghost" routerLink="/listings/new">+ List property</a>
+        <a class="pk-btn pk-btn--ghost" routerLink="/listings/mine">My listings</a>
+        <a class="pk-btn pk-btn--ghost" routerLink="/enquiries">Enquiries</a>
+        <a class="pk-btn pk-btn--ghost" routerLink="/favourites">Saved</a>
+        @if (auth.isAdmin()) {
+          <a class="pk-btn pk-btn--ghost" routerLink="/admin/users">Admin</a>
+        }
+        <app-theme-toggle />
+        <span class="avatar" aria-hidden="true">{{ initial() }}</span>
+        <button type="button" class="pk-btn pk-btn--ghost" (click)="logout()">Log out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page">
+
+    <!-- Search bar -->
+    <section class="search-bar">
+      <div class="search-bar__inner">
+        <div class="search-input-wrap">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input
+            type="search"
+            class="pk-input search-input"
+            placeholder="Search properties, areas, keywords…"
+            [value]="searchText()"
+            (input)="onSearchInput($any($event.target).value)"
+            aria-label="Search properties"
+          />
+        </div>
+
+        <input
+          type="text"
+          class="pk-input city-input"
+          placeholder="City"
+          [value]="city()"
+          (input)="onCityInput($any($event.target).value)"
+          aria-label="Filter by city"
+        />
+      </div>
+    </section>
+
+    <!-- Filters strip -->
+    <section class="filters">
+      <div class="filters__inner">
+
+        <!-- Listing type -->
+        <div class="filter-group">
+          <button
+            class="filter-pill"
+            [class.filter-pill--active]="listingType() === ''"
+            (click)="setListingType('')"
+          >All</button>
+          @for (type of listingTypes; track type) {
+            <button
+              class="filter-pill"
+              [class.filter-pill--active]="listingType() === type"
+              (click)="setListingType(type)"
+            >{{ type }}</button>
+          }
+        </div>
+
+        <div class="filter-divider" aria-hidden="true"></div>
+
+        <!-- Property kind -->
+        <select
+          class="pk-select"
+          [value]="kind()"
+          (change)="setKind($any($event.target).value)"
+          aria-label="Property type"
+        >
+          <option value="">All types</option>
+          @for (k of propertyKinds; track k) {
+            <option [value]="k">{{ k }}</option>
+          }
+        </select>
+
+        <!-- Min bedrooms -->
+        <select
+          class="pk-select"
+          [value]="minBedrooms() ?? ''"
+          (change)="setBedrooms($any($event.target).value ? +$any($event.target).value : null)"
+          aria-label="Minimum bedrooms"
+        >
+          <option value="">Any beds</option>
+          <option value="1">1+ beds</option>
+          <option value="2">2+ beds</option>
+          <option value="3">3+ beds</option>
+          <option value="4">4+ beds</option>
+        </select>
+
+        <!-- Sort -->
+        <select
+          class="pk-select ml-auto"
+          [value]="sort()"
+          (change)="setSort($any($event.target).value)"
+          aria-label="Sort order"
+        >
+          @for (opt of sortOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+
+        @if (searchText() || city() || listingType() || kind() || minBedrooms() != null) {
+          <button class="pk-btn pk-btn--ghost" (click)="clearFilters()">Clear</button>
+        }
+      </div>
+    </section>
+
+    <!-- Results header -->
+    <div class="results-header">
+      @if (!isLoading()) {
+        <p class="results-count">
+          @if (total() === 0) {
+            No listings found
+          } @else {
+            <strong>{{ total() }}</strong> listing{{ total() === 1 ? '' : 's' }} found
+          }
+        </p>
+      }
+    </div>
+
+    <!-- Loading skeleton -->
+    @if (isLoading()) {
+      <div class="property-grid">
+        @for (n of [1,2,3,4,5,6,7,8,9,10,11,12]; track n) {
+          <div class="property-card property-card--skeleton">
+            <div class="card-image skeleton-box"></div>
+            <div class="card-body">
+              <div class="skeleton-line" style="width:60%;height:12px"></div>
+              <div class="skeleton-line" style="width:80%;height:18px;margin-top:8px"></div>
+              <div class="skeleton-line" style="width:45%;height:22px;margin-top:8px"></div>
+              <div class="skeleton-line" style="width:70%;height:12px;margin-top:12px"></div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Error state -->
+    @if (!isLoading() && errorMessage()) {
+      <div class="state-empty">
+        <p class="state-empty__text">{{ errorMessage() }}</p>
+        <button class="pk-btn" (click)="load()">Try again</button>
+      </div>
+    }
+
+    <!-- Empty state -->
+    @if (!isLoading() && !errorMessage() && properties().length === 0) {
+      <div class="state-empty">
+        <span class="state-empty__icon" aria-hidden="true">🏠</span>
+        <p class="state-empty__title">No listings match your search</p>
+        <p class="state-empty__text">Try adjusting your filters or search terms.</p>
+        <button class="pk-btn pk-btn--ghost" (click)="clearFilters()">Clear all filters</button>
+      </div>
+    }
+
+    <!-- Property grid -->
+    @if (!isLoading() && properties().length > 0) {
+      <div class="property-grid">
+        @for (property of properties(); track property.id) {
+          <a
+            class="property-card"
+            [routerLink]="['/listings', property.slug]"
+          >
+            <!-- Image -->
+            <div class="card-image">
+              @if (property.primaryImageUrl) {
+                <img
+                  [src]="property.primaryImageUrl"
+                  [alt]="property.title"
+                  loading="lazy"
+                />
+              } @else {
+                <div class="card-image-placeholder" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <path d="m3 15 6-6 4 4 3-3 5 5"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                  </svg>
+                </div>
+              }
+
+              <!-- Badges -->
+              <div class="card-badges">
+                <span class="badge badge--type" [class.badge--rent]="property.listingType === 'Rent'">
+                  {{ property.listingType }}
+                </span>
+                @if (property.status !== 'Published') {
+                  <span class="badge badge--status">{{ property.status }}</span>
+                }
+              </div>
+
+              <!-- Favourite button -->
+              @if (auth.isAuthenticated()) {
+                <button
+                  class="favourite-btn"
+                  [class.favourite-btn--active]="isFavourited(property.id)"
+                  (click)="toggleFavourite($event, property)"
+                  [attr.aria-label]="isFavourited(property.id) ? 'Remove from saved' : 'Save property'"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                  </svg>
+                </button>
+              }
+            </div>
+
+            <!-- Card body -->
+            <div class="card-body">
+              <p class="card-location">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="12" height="12" aria-hidden="true">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                  <circle cx="12" cy="10" r="3"/>
+                </svg>
+                {{ property.locality ? property.locality + ', ' : '' }}{{ property.city }}
+              </p>
+
+              <h2 class="card-title">{{ property.title }}</h2>
+
+              <p class="card-price">{{ formatPrice(property) }}</p>
+
+              <div class="card-meta">
+                @if (property.bedrooms > 0) {
+                  <span class="card-meta-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14" aria-hidden="true">
+                      <path d="M2 9V4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5"/><path d="M2 20v-5a4 4 0 0 1 4-4h12a4 4 0 0 1 4 4v5"/>
+                    </svg>
+                    {{ property.bedrooms }} bd
+                  </span>
+                }
+                @if (property.bathrooms > 0) {
+                  <span class="card-meta-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14" aria-hidden="true">
+                      <path d="M4 12h16a1 1 0 0 1 1 1v3a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4v-3a1 1 0 0 1 1-1z"/><path d="M6 12V5a2 2 0 0 1 2-2h3v2.25"/>
+                    </svg>
+                    {{ property.bathrooms }} ba
+                  </span>
+                }
+                <span class="card-meta-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14" aria-hidden="true">
+                    <rect x="3" y="3" width="18" height="18"/><path d="M3 9h18M9 21V9"/>
+                  </svg>
+                  {{ property.areaSqFt | number:'1.0-0' }} sqft
+                </span>
+              </div>
+            </div>
+          </a>
+        }
+      </div>
+
+      <!-- Pagination -->
+      @if (totalPages() > 1) {
+        <nav class="pagination" aria-label="Property listing pages">
+          <button
+            class="pk-btn pk-btn--ghost pagination-btn"
+            (click)="goToPage(page() - 1)"
+            [disabled]="page() === 1"
+            aria-label="Previous page"
+          >←</button>
+
+          @for (p of pagesArray(); track $index) {
+            @if (p === -1) {
+              <span class="pagination-ellipsis">…</span>
+            } @else {
+              <button
+                class="pk-btn pk-btn--ghost pagination-btn"
+                [class.pagination-btn--active]="p === page()"
+                (click)="goToPage(p)"
+                [attr.aria-current]="p === page() ? 'page' : null"
+              >{{ p }}</button>
+            }
+          }
+
+          <button
+            class="pk-btn pk-btn--ghost pagination-btn"
+            (click)="goToPage(page() + 1)"
+            [disabled]="page() === totalPages()"
+            aria-label="Next page"
+          >→</button>
+        </nav>
+      }
+    }
+
+  </main>
+</div>

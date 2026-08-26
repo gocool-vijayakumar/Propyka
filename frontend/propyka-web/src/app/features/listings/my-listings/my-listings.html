@@ -1,0 +1,112 @@
+<div class="shell pk-grid-bg">
+  <header class="topbar">
+    <div class="topbar__inner">
+      <a class="pk-brand" routerLink="/home"><span class="pk-mark" aria-hidden="true">P</span><span>Propyka</span></a>
+      <div class="topbar__actions">
+        <a class="pk-btn pk-btn--ghost" routerLink="/listings">Browse</a>
+        <a class="pk-btn" routerLink="/listings/new">+ New listing</a>
+        <app-theme-toggle />
+        <span class="avatar" aria-hidden="true">{{ initial() }}</span>
+        <button type="button" class="pk-btn pk-btn--ghost" (click)="logout()">Log out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">My listings</h1>
+        @if (!isLoading()) {
+          <p class="page-subtitle">{{ total() }} listing{{ total() === 1 ? '' : 's' }}</p>
+        }
+      </div>
+    </div>
+
+    @if (actionError()) {
+      <div class="error-banner">{{ actionError() }}</div>
+    }
+
+    @if (isLoading()) {
+      <div class="loading-state"><div class="loading-spinner"></div></div>
+    }
+
+    @if (!isLoading() && errorMessage()) {
+      <p class="error-banner">{{ errorMessage() }}</p>
+    }
+
+    @if (!isLoading() && properties().length === 0 && !errorMessage()) {
+      <div class="state-empty">
+        <span class="state-empty__icon" aria-hidden="true">🏠</span>
+        <p class="state-empty__title">You haven't listed any properties yet</p>
+        <a class="pk-btn" routerLink="/listings/new">List your first property</a>
+      </div>
+    }
+
+    @if (!isLoading() && properties().length > 0) {
+      <div class="listings-table">
+        @for (p of properties(); track p.id) {
+          <div class="listing-row">
+            <div class="listing-image">
+              @if (p.primaryImageUrl) {
+                <img [src]="p.primaryImageUrl" [alt]="p.title" />
+              } @else {
+                <div class="listing-image-empty" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <path d="m3 15 6-6 4 4 3-3 5 5"/>
+                  </svg>
+                </div>
+              }
+            </div>
+
+            <div class="listing-info">
+              <div class="listing-info__top">
+                <a class="listing-title" [routerLink]="['/listings', p.slug]">{{ p.title }}</a>
+                <span class="status-badge" [attr.data-status]="p.status">{{ statusLabel(p.status) }}</span>
+              </div>
+              <p class="listing-meta">
+                {{ p.kind }} · {{ p.city }}{{ p.locality ? ', ' + p.locality : '' }}
+                @if (p.bedrooms > 0) { · {{ p.bedrooms }} bd }
+                @if (p.bathrooms > 0) { · {{ p.bathrooms }} ba }
+                · {{ p.areaSqFt | number:'1.0-0' }} sqft
+              </p>
+              <p class="listing-price">{{ formatPrice(p) }}</p>
+              @if (p.publishedAt) {
+                <p class="listing-date">Published {{ p.publishedAt | date:'mediumDate' }}</p>
+              }
+            </div>
+
+            <div class="listing-actions">
+              <a class="pk-btn pk-btn--ghost listing-action-btn" [routerLink]="['/listings', p.id, 'edit']">Edit</a>
+              <a class="pk-btn pk-btn--ghost listing-action-btn" [routerLink]="['/listings', p.id, 'images']">Photos</a>
+              <a class="pk-btn pk-btn--ghost listing-action-btn" [routerLink]="['/enquiries']">Enquiries</a>
+
+              @if (p.status === 'Draft' || p.status === 'Archived') {
+                <button
+                  class="pk-btn listing-action-btn"
+                  (click)="publish(p.id)"
+                  [disabled]="actionLoadingId() === p.id"
+                >{{ actionLoadingId() === p.id ? '…' : 'Publish' }}</button>
+              }
+              @if (p.status === 'Published') {
+                <button
+                  class="pk-btn pk-btn--ghost listing-action-btn"
+                  (click)="archive(p.id)"
+                  [disabled]="actionLoadingId() === p.id"
+                >Archive</button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      @if (totalPages() > 1) {
+        <nav class="pagination">
+          <button class="pk-btn pk-btn--ghost" (click)="goToPage(page() - 1)" [disabled]="page() === 1">← Prev</button>
+          <span class="pagination-label">{{ page() }} / {{ totalPages() }}</span>
+          <button class="pk-btn pk-btn--ghost" (click)="goToPage(page() + 1)" [disabled]="page() === totalPages()">Next →</button>
+        </nav>
+      }
+    }
+  </main>
+</div>

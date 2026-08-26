@@ -1,0 +1,266 @@
+<div class="shell pk-grid-bg">
+
+  <header class="topbar">
+    <div class="topbar__inner">
+      <a class="pk-brand" routerLink="/home"><span class="pk-mark" aria-hidden="true">P</span><span>Propyka</span></a>
+      <div class="topbar__actions">
+        <a class="pk-btn pk-btn--ghost" routerLink="/listings/mine">My listings</a>
+        <app-theme-toggle />
+        <span class="avatar" aria-hidden="true">{{ initial() }}</span>
+        <button type="button" class="pk-btn pk-btn--ghost" (click)="logout()">Log out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="form-shell">
+
+      <!-- Progress steps -->
+      <div class="steps-bar" aria-label="Form progress">
+        @for (s of steps; track s; let i = $index) {
+          <button
+            class="step-item"
+            [class.step-item--active]="step() === s"
+            [class.step-item--done]="stepIndex() > i"
+            (click)="goToStep(s)"
+            [disabled]="stepIndex() < i"
+          >
+            <span class="step-num">{{ i + 1 }}</span>
+            <span class="step-label">{{ s | titlecase }}</span>
+          </button>
+          @if (i < steps.length - 1) {
+            <span class="step-connector" aria-hidden="true"></span>
+          }
+        }
+      </div>
+
+      <div class="form-card pk-card">
+
+        <h1 class="form-title">
+          @if (isEdit()) { Edit listing } @else { List a property }
+        </h1>
+
+        @if (errorMessage()) {
+          <div class="error-banner">{{ errorMessage() }}</div>
+        }
+        @if (stepError()) {
+          <div class="error-banner step-error">{{ stepError() }}</div>
+        }
+
+        <!-- ── Step 1: Basics ─────────────────────────────────────────── -->
+        @if (step() === 'basics') {
+          <div class="step-content">
+            <div class="field">
+              <label class="pk-label" for="title">Listing title *</label>
+              <input id="title" type="text" class="pk-input" [value]="title()" (input)="title.set($any($event.target).value)" placeholder="e.g. Spacious 3BHK in Bandra West" maxlength="160" />
+              <span class="field-hint">{{ title().length }}/160</span>
+            </div>
+
+            <div class="field">
+              <label class="pk-label" for="description">Description</label>
+              <textarea id="description" class="pk-input" rows="5" [value]="description()" (input)="description.set($any($event.target).value)" placeholder="Describe the property — highlights, nearby amenities, transport links…" maxlength="4000"></textarea>
+              <span class="field-hint">{{ description().length }}/4000</span>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <span class="pk-label">Listing type *</span>
+                <div class="btn-toggle">
+                  @for (type of listingTypes; track type) {
+                    <button
+                      type="button"
+                      class="btn-toggle__item"
+                      [class.btn-toggle__item--active]="listingType() === type"
+                      (click)="listingType.set(type)"
+                    >For {{ type }}</button>
+                  }
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="pk-label" for="kind">Property type *</label>
+                <select id="kind" class="pk-select" [value]="kind()" (change)="kind.set($any($event.target).value)">
+                  @for (k of propertyKinds; track k) {
+                    <option [value]="k">{{ k }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label class="pk-label" for="price">Price (₹) *</label>
+                <input id="price" type="number" class="pk-input" [value]="price()" (input)="price.set(+$any($event.target).value || null)" placeholder="0" min="0" />
+              </div>
+
+              @if (listingType() === 'Rent') {
+                <div class="field">
+                  <span class="pk-label">Rent period</span>
+                  <div class="btn-toggle">
+                    @for (rp of rentPeriods; track rp) {
+                      <button type="button" class="btn-toggle__item" [class.btn-toggle__item--active]="rentPeriod() === rp" (click)="rentPeriod.set(rp)">{{ rp }}</button>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- ── Step 2: Details ────────────────────────────────────────── -->
+        @if (step() === 'details') {
+          <div class="step-content">
+            <div class="field-row">
+              <div class="field">
+                <label class="pk-label" for="bedrooms">Bedrooms</label>
+                <input id="bedrooms" type="number" class="pk-input" [value]="bedrooms()" (input)="bedrooms.set(+$any($event.target).value)" min="0" max="50" />
+              </div>
+              <div class="field">
+                <label class="pk-label" for="bathrooms">Bathrooms</label>
+                <input id="bathrooms" type="number" class="pk-input" [value]="bathrooms()" (input)="bathrooms.set(+$any($event.target).value)" min="0" max="50" />
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label class="pk-label" for="area">Built-up area (sq ft) *</label>
+                <input id="area" type="number" class="pk-input" [value]="areaSqFt()" (input)="areaSqFt.set(+$any($event.target).value || null)" placeholder="e.g. 1200" min="0" />
+              </div>
+              <div class="field">
+                <label class="pk-label" for="plot">Plot area (sq ft)</label>
+                <input id="plot" type="number" class="pk-input" [value]="plotAreaSqFt()" (input)="plotAreaSqFt.set(+$any($event.target).value || null)" placeholder="Optional" min="0" />
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label class="pk-label" for="year">Year built</label>
+                <input id="year" type="number" class="pk-input" [value]="yearBuilt()" (input)="yearBuilt.set(+$any($event.target).value || null)" placeholder="e.g. 2010" min="1800" max="2100" />
+              </div>
+              <div class="field">
+                <label class="pk-label" for="furnishing">Furnishing</label>
+                <select id="furnishing" class="pk-select" [value]="furnishing()" (change)="furnishing.set($any($event.target).value)">
+                  <option value="">Not specified</option>
+                  @for (f of furnishingLevels; track f) {
+                    <option [value]="f">{{ f }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            <!-- Amenities -->
+            @if (allAmenities().length > 0) {
+              <div class="field">
+                <span class="pk-label">Amenities</span>
+                <div class="amenity-picker">
+                  @for (a of allAmenities(); track a.id) {
+                    <button
+                      type="button"
+                      class="amenity-chip"
+                      [class.amenity-chip--active]="isAmenitySelected(a.id)"
+                      (click)="toggleAmenity(a.id)"
+                    >{{ a.name }}</button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- ── Step 3: Location ───────────────────────────────────────── -->
+        @if (step() === 'location') {
+          <div class="step-content">
+            <div class="field">
+              <label class="pk-label" for="line1">Address line 1 *</label>
+              <input id="line1" type="text" class="pk-input" [value]="addrLine1()" (input)="addrLine1.set($any($event.target).value)" placeholder="Building name / house number, street" maxlength="200" />
+            </div>
+            <div class="field">
+              <label class="pk-label" for="line2">Address line 2</label>
+              <input id="line2" type="text" class="pk-input" [value]="addrLine2()" (input)="addrLine2.set($any($event.target).value)" placeholder="Flat / unit number, floor (optional)" maxlength="200" />
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label class="pk-label" for="locality">Locality / area</label>
+                <input id="locality" type="text" class="pk-input" [value]="addrLocality()" (input)="addrLocality.set($any($event.target).value)" placeholder="e.g. Bandra West" maxlength="120" />
+              </div>
+              <div class="field">
+                <label class="pk-label" for="city">City *</label>
+                <input id="city" type="text" class="pk-input" [value]="addrCity()" (input)="addrCity.set($any($event.target).value)" placeholder="e.g. Mumbai" maxlength="120" />
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label class="pk-label" for="state">State *</label>
+                <input id="state" type="text" class="pk-input" [value]="addrState()" (input)="addrState.set($any($event.target).value)" placeholder="e.g. Maharashtra" maxlength="120" />
+              </div>
+              <div class="field">
+                <label class="pk-label" for="postal">Postal code *</label>
+                <input id="postal" type="text" class="pk-input" [value]="addrPostal()" (input)="addrPostal.set($any($event.target).value)" placeholder="e.g. 400050" maxlength="20" />
+              </div>
+            </div>
+            <div class="field">
+              <label class="pk-label" for="country">Country *</label>
+              <input id="country" type="text" class="pk-input" [value]="addrCountry()" (input)="addrCountry.set($any($event.target).value)" placeholder="India" maxlength="80" />
+            </div>
+          </div>
+        }
+
+        <!-- ── Step 4: Review ─────────────────────────────────────────── -->
+        @if (step() === 'review') {
+          <div class="step-content">
+            <div class="review-section">
+              <h3 class="review-section-title">Basics</h3>
+              <div class="review-grid">
+                <span class="pk-label">Title</span><span>{{ title() }}</span>
+                <span class="pk-label">Type</span><span>{{ kind() }} · For {{ listingType() }}</span>
+                <span class="pk-label">Price</span><span>₹{{ price() | number }} {{ listingType() === 'Rent' ? '/ ' + rentPeriod() : '' }}</span>
+              </div>
+            </div>
+            <div class="review-section">
+              <h3 class="review-section-title">Details</h3>
+              <div class="review-grid">
+                <span class="pk-label">Bedrooms</span><span>{{ bedrooms() }}</span>
+                <span class="pk-label">Bathrooms</span><span>{{ bathrooms() }}</span>
+                <span class="pk-label">Area</span><span>{{ areaSqFt() | number }} sq ft</span>
+                @if (furnishing()) { <span class="pk-label">Furnishing</span><span>{{ furnishing() }}</span> }
+                @if (selectedAmenityIds().size > 0) { <span class="pk-label">Amenities</span><span>{{ selectedAmenityIds().size }} selected</span> }
+              </div>
+            </div>
+            <div class="review-section">
+              <h3 class="review-section-title">Location</h3>
+              <div class="review-grid">
+                <span class="pk-label">Address</span>
+                <span>{{ addrLine1() }}{{ addrLine2() ? ', ' + addrLine2() : '' }}</span>
+                <span class="pk-label">City</span><span>{{ addrLocality() ? addrLocality() + ', ' : '' }}{{ addrCity() }}</span>
+                <span class="pk-label">State</span><span>{{ addrState() }} {{ addrPostal() }}</span>
+                <span class="pk-label">Country</span><span>{{ addrCountry() }}</span>
+              </div>
+            </div>
+
+            <p class="review-note">
+              Your listing will be saved as a <strong>draft</strong>. You can add photos and publish it from your listings page.
+            </p>
+          </div>
+        }
+
+        <!-- Navigation buttons -->
+        <div class="form-footer">
+          @if (stepIndex() > 0) {
+            <button type="button" class="pk-btn pk-btn--ghost" (click)="goPrev()">← Back</button>
+          } @else {
+            <span></span>
+          }
+
+          @if (stepIndex() < steps.length - 1) {
+            <button type="button" class="pk-btn" (click)="goNext()">Continue →</button>
+          } @else {
+            <button type="button" class="pk-btn" (click)="submit()" [disabled]="isSubmitting()">
+              {{ isSubmitting() ? 'Saving…' : (isEdit() ? 'Save changes' : 'Create listing') }}
+            </button>
+          }
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
