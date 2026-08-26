@@ -9,7 +9,13 @@
         <span>Propyka</span>
       </div>
 
-      <div class="topbar__actions">
+      <nav class="topbar__actions">
+        <a class="pk-btn pk-btn--ghost" routerLink="/listings">Listings</a>
+        <a class="pk-btn pk-btn--ghost" routerLink="/listings/mine">My listings</a>
+        <a class="pk-btn pk-btn--ghost" routerLink="/enquiries">Enquiries</a>
+        <a class="pk-btn pk-btn--ghost" routerLink="/favourites">Saved</a>
+        <a class="pk-btn pk-btn--ghost" routerLink="/account">Account</a>
+
         @if (auth.isAdmin()) {
           <a class="pk-btn pk-btn--ghost" routerLink="/admin/users">Admin</a>
         }
@@ -21,7 +27,7 @@
         <button type="button" class="pk-btn pk-btn--ghost" (click)="logout()">
           Log out
         </button>
-      </div>
+      </nav>
 
     </div>
   </header>
@@ -51,7 +57,7 @@
     <!-- Pillars -->
     <section class="tiles" aria-label="What you can do">
 
-      <article class="pk-card tile">
+      <a class="pk-card tile" routerLink="/listings">
         <span class="tile__icon tile__icon--listings" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -70,14 +76,14 @@
           </p>
         </div>
 
-        <button type="button" class="tile__link">
+        <span class="tile__link">
           Browse listings
           <span class="tile__arrow" aria-hidden="true">→</span>
-        </button>
-      </article>
+        </span>
+      </a>
 
 
-      <article class="pk-card tile">
+      <a class="pk-card tile" routerLink="/listings/mine">
         <span class="tile__icon tile__icon--market" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -88,48 +94,48 @@
         </span>
 
         <div class="tile__body">
-          <h2 class="tile__title">Marketplace</h2>
+          <h2 class="tile__title">My listings</h2>
 
           <p class="tile__text">
-            Source materials, fittings and services from suppliers
-            near the property.
+            Manage the properties you've listed — create new ones,
+            upload photos, publish or archive.
           </p>
         </div>
 
-        <button type="button" class="tile__link">
-          Open marketplace
+        <span class="tile__link">
+          Manage listings
           <span class="tile__arrow" aria-hidden="true">→</span>
-        </button>
-      </article>
+        </span>
+      </a>
 
 
-      <article class="pk-card tile">
+      <a class="pk-card tile" routerLink="/enquiries">
         <span class="tile__icon tile__icon--trades" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M16.4 3.6a4.6 4.6 0 0 0-4.3 6.1L4 17.8 6.2 20l8.1-8.1a4.6 4.6 0 0 0 6.1-4.3l-2.9 2.9-2.8-.7-.7-2.8z" />
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
         </span>
 
         <div class="tile__body">
-          <h2 class="tile__title">Trades</h2>
+          <h2 class="tile__title">Enquiries</h2>
 
           <p class="tile__text">
-            Hire verified electricians, plumbers and builders, and
-            track the jobs they are on.
+            See messages from people interested in your listings,
+            and track conversations you've started.
           </p>
         </div>
 
-        <button type="button" class="tile__link">
-          Find a professional
+        <span class="tile__link">
+          View enquiries
           <span class="tile__arrow" aria-hidden="true">→</span>
-        </button>
-      </article>
+        </span>
+      </a>
 
     </section>
 
 
-    <!-- Account read-out from the protected API -->
+    <!-- Account read-out -->
     <section class="pk-card session" aria-label="Account details">
 
       <div class="session__cell">
@@ -150,7 +156,7 @@
       <div class="session__cell">
         <span class="pk-label">Email</span>
 
-        <p class="session__value session__value--mono" [title]="auth.profile()?.email">
+        <p class="session__value session__value--mono" [title]="auth.profile()?.email ?? ''">
           {{ auth.profile()?.email || '—' }}
         </p>
       </div>
