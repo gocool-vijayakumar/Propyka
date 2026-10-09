@@ -49,3 +49,6 @@ desktop.ini
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
+
+# Uploaded listing photos are user data, not source. Never commit them.
+**/wwwroot/uploads/
