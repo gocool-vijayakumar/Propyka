@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.EntityFrameworkCore;
 using Propyka.Api.Common;
 using Propyka.Api.Common.Storage;
 using Propyka.Api.Modules.Identity;
@@ -28,6 +29,20 @@ builder.Services.AddSingleton<IFileStorage, LocalFileStorage>();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
+
+// Behind a hosting platform's proxy (Azure App Service, Render, Railway) the app
+// receives plain HTTP from the proxy's address. Without these headers the HTTPS
+// redirect loops, and every visitor shares one rate-limit bucket.
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+
+    // The default allow-list only trusts loopback, which would ignore a remote
+    // platform proxy. Only enable Proxy:TrustForwardedHeaders when nothing can
+    // reach the app except through that proxy, or clients can spoof their IP.
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<PropykaDbContext>();
@@ -116,6 +131,13 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
+// Must be first. Later steps (HTTPS redirect, rate limiting, the client address
+// in logs) need the scheme and IP the client actually used, not the proxy's.
+if (app.Configuration.GetValue<bool>("Proxy:TrustForwardedHeaders"))
+{
+    app.UseForwardedHeaders();
+}
+
 // ─── Pipeline ─────────────────────────────────────────────────────────────────
 // Order matters here more than anywhere else in the application. Each entry is
 // placed where it is for a reason:
@@ -148,6 +170,16 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapIdentityApi<ApplicationUser>();
 app.MapHealthChecks("/health");
+
+// Brings the schema up to date before the first request is served. Idempotent,
+// so running it on every start is safe. Set Database:ApplyMigrationsOnStartup to
+// false when several instances share a database and migrations run as their own step.
+if (app.Configuration.GetValue<bool>("Database:ApplyMigrationsOnStartup"))
+{
+    using var migrationScope = app.Services.CreateScope();
+    var db = migrationScope.ServiceProvider.GetRequiredService<PropykaDbContext>();
+    await db.Database.MigrateAsync();
+}
 
 // Seeding runs after Build() but before the first request is served.
 using (var scope = app.Services.CreateScope())
