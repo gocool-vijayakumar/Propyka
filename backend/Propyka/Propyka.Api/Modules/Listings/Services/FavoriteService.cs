@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Propyka.Api.Common;
+using Propyka.Api.Common.Plans;
 using Propyka.Api.Common.Storage;
 using Propyka.Api.Modules.Listings.Contracts;
 using Propyka.Api.Modules.Listings.Domain;
@@ -12,7 +13,7 @@ public interface IFavoriteService
     Task<PagedResult<PropertySummaryResponse>> GetMineAsync(
         string userId, int page, int pageSize, CancellationToken ct = default);
 
-    /// <summary>Idempotent add. Returns false if the listing does not exist.</summary>
+    /// <summary>Idempotent add. Returns false unless the listing exists and is published.</summary>
     Task<bool> AddAsync(string userId, Guid propertyId, CancellationToken ct = default);
 
     Task<bool> RemoveAsync(string userId, Guid propertyId, CancellationToken ct = default);
@@ -25,11 +26,13 @@ public sealed class FavoriteService : IFavoriteService
 {
     private readonly PropykaDbContext _db;
     private readonly IFileStorage _storage;
+    private readonly IPlanService _plans;
 
-    public FavoriteService(PropykaDbContext db, IFileStorage storage)
+    public FavoriteService(PropykaDbContext db, IFileStorage storage, IPlanService plans)
     {
         _db = db;
         _storage = storage;
+        _plans = plans;
     }
 
     public async Task<PagedResult<PropertySummaryResponse>> GetMineAsync(
@@ -86,7 +89,10 @@ public sealed class FavoriteService : IFavoriteService
 
     public async Task<bool> AddAsync(string userId, Guid propertyId, CancellationToken ct = default)
     {
-        var exists = await _db.Properties.AnyAsync(p => p.Id == propertyId, ct);
+        // Drafts and archived listings are hidden from the public, so they cannot
+        // be saved either. Otherwise this endpoint would reveal that they exist.
+        var exists = await _db.Properties.AnyAsync(
+            p => p.Id == propertyId && p.Status == ListingStatus.Published, ct);
 
         if (!exists)
         {
@@ -102,6 +108,16 @@ public sealed class FavoriteService : IFavoriteService
         if (already)
         {
             return true;
+        }
+
+        var plan = await _plans.ForUserAsync(userId);
+        var saved = await _db.Favorites.CountAsync(f => f.UserId == userId, ct);
+
+        if (saved >= plan.MaxSavedListings)
+        {
+            throw new DomainException(
+                $"The {plan.Name} plan lets you save {plan.MaxSavedListings} listings. " +
+                "Remove one or upgrade to Pro for more.");
         }
 
         _db.Favorites.Add(new Favorite
