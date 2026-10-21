@@ -89,10 +89,16 @@ public sealed class LocalFileStorage : IFileStorage
     /// </summary>
     private string? ResolveWithinRoot(string storageKey)
     {
-        var candidate = Path.GetFullPath(Path.Combine(_absoluteRoot, storageKey));
         var root = Path.GetFullPath(_absoluteRoot);
+        var candidate = Path.GetFullPath(Path.Combine(root, storageKey));
 
-        return candidate.StartsWith(root, StringComparison.Ordinal) ? candidate : null;
+        // The separator matters. Without it a root of ".../uploads" would also
+        // accept ".../uploads-old/...", because the text before the prefix matches.
+        var rootWithSeparator = root.EndsWith(Path.DirectorySeparatorChar)
+            ? root
+            : root + Path.DirectorySeparatorChar;
+
+        return candidate.StartsWith(rootWithSeparator, StringComparison.Ordinal) ? candidate : null;
     }
 
     private static string Sanitise(string folder)
