@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Propyka.Api.Common;
+using Propyka.Api.Common.Plans;
 using Propyka.Api.Common.Storage;
 using Propyka.Api.Modules.Listings.Contracts;
 using Propyka.Api.Modules.Listings.Domain;
@@ -11,11 +12,13 @@ public sealed class PropertyService : IPropertyService
 {
     private readonly PropykaDbContext _db;
     private readonly IFileStorage _storage;
+    private readonly IPlanService _plans;
 
-    public PropertyService(PropykaDbContext db, IFileStorage storage)
+    public PropertyService(PropykaDbContext db, IFileStorage storage, IPlanService plans)
     {
         _db = db;
         _storage = storage;
+        _plans = plans;
     }
 
     // ─── Read ─────────────────────────────────────────────────────────────────
@@ -204,6 +207,7 @@ public sealed class PropertyService : IPropertyService
     public async Task<CreatedPropertyResponse> CreateAsync(
         string ownerId, CreatePropertyRequest request, CancellationToken ct = default)
     {
+        await GuardActiveListingLimitAsync(ownerId, ct);
         await GuardAmenitiesExistAsync(request.AmenityIds, ct);
 
         var property = new Property
@@ -247,6 +251,29 @@ public sealed class PropertyService : IPropertyService
         return new CreatedPropertyResponse(property.Id, property.Slug);
     }
 
+    /// <summary>
+    /// Counts listings that still occupy a slot: drafts, live listings and those
+    /// under offer. Sold, rented and archived listings free their slot.
+    /// </summary>
+    private async Task GuardActiveListingLimitAsync(string ownerId, CancellationToken ct)
+    {
+        var plan = await _plans.ForUserAsync(ownerId);
+
+        var active = await _db.Properties.CountAsync(
+            p => p.OwnerId == ownerId
+              && (p.Status == ListingStatus.Draft
+               || p.Status == ListingStatus.Published
+               || p.Status == ListingStatus.UnderOffer),
+            ct);
+
+        if (active >= plan.MaxActiveListings)
+        {
+            throw new DomainException(
+                $"The {plan.Name} plan allows {plan.MaxActiveListings} active listings. " +
+                "Archive one or upgrade to Pro to add more.");
+        }
+    }
+
     public async Task<bool> UpdateAsync(
         Guid id, string ownerId, CreatePropertyRequest request, CancellationToken ct = default)
     {
@@ -261,6 +288,12 @@ public sealed class PropertyService : IPropertyService
         if (property is null)
         {
             return false;
+        }
+
+        // Same rule PublishAsync enforces: a live listing keeps a usable price.
+        if (property.Status == ListingStatus.Published && request.Price <= 0)
+        {
+            throw new DomainException("A published listing needs a price above zero.");
         }
 
         await GuardAmenitiesExistAsync(request.AmenityIds, ct);
