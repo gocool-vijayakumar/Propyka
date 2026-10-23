@@ -74,6 +74,29 @@
 [data-theme='light'] {
   color-scheme: light;
 
+  /* Legacy aliases. Older feature styles use these names, so they keep working
+     and pick up the palette below. Prefer the tokens above in new code. */
+  --text-primary: var(--text-1);
+  --text-secondary: var(--text-2);
+  --text-accent: var(--brand-ink);
+  --bg-accent: var(--brand-soft);
+  --border-accent: var(--brand-line);
+  --surface-0: var(--surface-2);
+  --surface-1: var(--surface);
+  --text-danger: var(--danger);
+  --bg-danger: var(--danger-soft);
+  --border-danger: var(--danger-line);
+  --text-success: var(--success);
+  --bg-success: var(--success-soft);
+  --border-success: rgba(31, 122, 92, 0.35);
+  --text-warning: #8a5a00;
+  --bg-warning: rgba(217, 142, 4, 0.12);
+  --border-warning: rgba(217, 142, 4, 0.4);
+
+  /* Ambient light behind the page */
+  --glow-a: rgba(176, 129, 42, 0.16);
+  --glow-b: rgba(58, 96, 146, 0.1);
+
   --bg: #edeff2;
   --bg-grid: rgba(14, 22, 32, 0.05);
 
@@ -120,6 +143,26 @@
 
 [data-theme='dark'] {
   color-scheme: dark;
+
+  --text-primary: var(--text-1);
+  --text-secondary: var(--text-2);
+  --text-accent: var(--brand-ink);
+  --bg-accent: var(--brand-soft);
+  --border-accent: var(--brand-line);
+  --surface-0: var(--surface-2);
+  --surface-1: var(--surface);
+  --text-danger: var(--danger);
+  --bg-danger: var(--danger-soft);
+  --border-danger: var(--danger-line);
+  --text-success: var(--success);
+  --bg-success: var(--success-soft);
+  --border-success: rgba(79, 195, 154, 0.32);
+  --text-warning: #f0b44c;
+  --bg-warning: rgba(240, 180, 76, 0.12);
+  --border-warning: rgba(240, 180, 76, 0.35);
+
+  --glow-a: rgba(224, 166, 63, 0.13);
+  --glow-b: rgba(70, 116, 180, 0.16);
 
   --bg: #0a0e14;
   --bg-grid: rgba(224, 166, 63, 0.055);
@@ -595,3 +638,75 @@ button {
     scroll-behavior: auto !important;
   }
 }
+
+
+/* =========================
+   12. SHELL — ATMOSPHERE & MOTION
+   ========================= */
+
+body {
+  background-image:
+    radial-gradient(60rem 38rem at 10% -10%, var(--glow-a), transparent 70%),
+    radial-gradient(54rem 34rem at 100% -6%, var(--glow-b), transparent 70%);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+main {
+  animation: pk-enter 0.5s var(--ease) both;
+}
+
+@keyframes pk-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Brass gradient for a single headline word */
+.pk-gradient-text {
+  background: linear-gradient(115deg, var(--brand-ink) 0%, var(--brand) 45%, var(--text-1) 120%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Cards that respond to hover, for anything clickable */
+.pk-card--interactive {
+  transition:
+    transform var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease),
+    border-color var(--dur) var(--ease);
+}
+
+.pk-card--interactive:hover {
+  transform: translateY(-3px);
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-lg);
+}
+
+.pk-btn--primary {
+  box-shadow: 0 10px 24px -14px color-mix(in srgb, var(--btn-bg) 80%, transparent);
+}
+
+.pk-btn--primary:hover:not(:disabled) {
+  box-shadow: 0 14px 28px -14px color-mix(in srgb, var(--btn-bg) 90%, transparent);
+}
+
+/* Room for the mobile tab bar so content never hides behind it */
+@media (max-width: 720px) {
+  .page {
+    padding-bottom: 112px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main {
+    animation: none;
+  }
+}
+
