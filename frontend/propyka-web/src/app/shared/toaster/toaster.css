@@ -1,0 +1,96 @@
+.toaster {
+  position: fixed;
+  right: var(--sp-5);
+  bottom: var(--sp-5);
+  z-index: 100;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  width: min(380px, calc(100vw - 2 * var(--sp-4)));
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: start;
+  gap: var(--sp-3);
+
+  padding: var(--sp-3) var(--sp-3) var(--sp-3) var(--sp-3);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(14px) saturate(1.3);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--brand);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+
+  animation: toast-in 0.32s var(--ease) both;
+}
+
+.toast--success { border-left-color: var(--success); }
+.toast--error   { border-left-color: var(--danger); }
+
+.toast__icon {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  background: var(--brand-soft);
+  color: var(--brand-ink);
+}
+
+.toast--success .toast__icon { background: var(--success-soft); color: var(--success); }
+.toast--error .toast__icon   { background: var(--danger-soft);  color: var(--danger); }
+
+.toast__message {
+  margin: 2px 0 0;
+  color: var(--text-1);
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+}
+
+.toast__close {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--text-3);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.toast__close:hover {
+  background: var(--surface-2);
+  color: var(--text-1);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .toaster {
+    left: var(--sp-4);
+    right: var(--sp-4);
+    bottom: 96px;
+    width: auto;
+  }
+}
