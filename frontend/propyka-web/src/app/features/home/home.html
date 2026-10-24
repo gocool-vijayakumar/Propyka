@@ -1,63 +1,42 @@
 <div class="shell pk-grid-bg">
 
-  <!-- Top bar -->
-  <header class="topbar">
-    <div class="topbar__inner">
-
-      <div class="pk-brand">
-        <span class="pk-mark" aria-hidden="true">P</span>
-        <span>Propyka</span>
-      </div>
-
-      <nav class="topbar__actions">
-        <a class="pk-btn pk-btn--ghost" routerLink="/listings">Listings</a>
-        <a class="pk-btn pk-btn--ghost" routerLink="/listings/mine">My listings</a>
-        <a class="pk-btn pk-btn--ghost" routerLink="/enquiries">Enquiries</a>
-        <a class="pk-btn pk-btn--ghost" routerLink="/favourites">Saved</a>
-        <a class="pk-btn pk-btn--ghost" routerLink="/account">Account</a>
-
-        @if (auth.isAdmin()) {
-          <a class="pk-btn pk-btn--ghost" routerLink="/admin/users">Admin</a>
-        }
-
-        <app-theme-toggle />
-
-        <span class="avatar" aria-hidden="true">{{ initial() }}</span>
-
-        <button type="button" class="pk-btn pk-btn--ghost" (click)="logout()">
-          Log out
-        </button>
-      </nav>
-
-    </div>
-  </header>
-
+  <app-topbar />
 
   <main class="page">
 
     <!-- Hero -->
     <section class="hero">
-      <span class="pk-label pk-label--brand">Your account</span>
+      <span class="eyebrow">
+        <span class="eyebrow__dot" aria-hidden="true"></span>
+        {{ greeting() }}
+      </span>
 
       <h1 class="hero__title">
         @if (firstName()) {
-          Welcome back, <em>{{ firstName() }}</em>
+          Welcome back, <span class="pk-gradient-text">{{ firstName() }}</span>
         } @else {
-          Welcome back to <em>Propyka</em>
+          Welcome back to <span class="pk-gradient-text">Propyka</span>
         }
       </h1>
 
       <p class="hero__text">
-        Pick up where you left off: browse listings, source what the
-        property needs, or line up the trades to do the work.
+        Find your next property, keep track of the homes you love, and reply
+        to people who are interested in yours.
       </p>
+
+      <div class="hero__actions">
+        <a class="pk-btn pk-btn--primary" routerLink="/listings">Browse listings</a>
+        <a class="pk-btn pk-btn--ghost hero__secondary" routerLink="/listings/new">List a property</a>
+      </div>
     </section>
 
+    <!-- Freemium: banner ad. Hidden for Pro. -->
+    <app-ad-slot variant="banner" />
 
-    <!-- Pillars -->
-    <section class="tiles" aria-label="What you can do">
+    <!-- Destinations -->
+    <section class="tiles" aria-label="Where to go next">
 
-      <a class="pk-card tile" routerLink="/listings">
+      <a class="pk-card pk-card--interactive tile" routerLink="/listings">
         <span class="tile__icon tile__icon--listings" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -66,24 +45,14 @@
             <path d="M9.8 20.4v-5.2h4.4v5.2" />
           </svg>
         </span>
-
         <div class="tile__body">
           <h2 class="tile__title">Listings</h2>
-
-          <p class="tile__text">
-            Search properties to buy, sell or rent, and keep the ones
-            worth a second look.
-          </p>
+          <p class="tile__text">Search homes to buy or rent, and save the ones worth a second look.</p>
         </div>
-
-        <span class="tile__link">
-          Browse listings
-          <span class="tile__arrow" aria-hidden="true">→</span>
-        </span>
+        <span class="tile__link">Browse listings <span class="tile__arrow" aria-hidden="true">→</span></span>
       </a>
 
-
-      <a class="pk-card tile" routerLink="/listings/mine">
+      <a class="pk-card pk-card--interactive tile" routerLink="/listings/mine">
         <span class="tile__icon tile__icon--market" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -92,55 +61,34 @@
             <path d="M9.6 20.4v-6.2h4.8v6.2" />
           </svg>
         </span>
-
         <div class="tile__body">
           <h2 class="tile__title">My listings</h2>
-
-          <p class="tile__text">
-            Manage the properties you've listed — create new ones,
-            upload photos, publish or archive.
-          </p>
+          <p class="tile__text">Create new listings, add photos, and publish or archive them.</p>
         </div>
-
-        <span class="tile__link">
-          Manage listings
-          <span class="tile__arrow" aria-hidden="true">→</span>
-        </span>
+        <span class="tile__link">Manage listings <span class="tile__arrow" aria-hidden="true">→</span></span>
       </a>
 
-
-      <a class="pk-card tile" routerLink="/enquiries">
+      <a class="pk-card pk-card--interactive tile" routerLink="/enquiries">
         <span class="tile__icon tile__icon--trades" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
         </span>
-
         <div class="tile__body">
           <h2 class="tile__title">Enquiries</h2>
-
-          <p class="tile__text">
-            See messages from people interested in your listings,
-            and track conversations you've started.
-          </p>
+          <p class="tile__text">See messages about your listings and follow the conversations you started.</p>
         </div>
-
-        <span class="tile__link">
-          View enquiries
-          <span class="tile__arrow" aria-hidden="true">→</span>
-        </span>
+        <span class="tile__link">View enquiries <span class="tile__arrow" aria-hidden="true">→</span></span>
       </a>
 
     </section>
-
 
     <!-- Account read-out -->
     <section class="pk-card session" aria-label="Account details">
 
       <div class="session__cell">
         <span class="pk-label">Status</span>
-
         <p class="session__value">
           <span class="dot" [class.dot--idle]="!auth.profile()" aria-hidden="true"></span>
           @if (loadFailed()) {
@@ -155,7 +103,6 @@
 
       <div class="session__cell">
         <span class="pk-label">Email</span>
-
         <p class="session__value session__value--mono" [title]="auth.profile()?.email ?? ''">
           {{ auth.profile()?.email || '—' }}
         </p>
@@ -163,7 +110,6 @@
 
       <div class="session__cell">
         <span class="pk-label">Roles</span>
-
         <p class="session__value">
           {{ auth.profile()?.roles?.join(', ') || '—' }}
         </p>
