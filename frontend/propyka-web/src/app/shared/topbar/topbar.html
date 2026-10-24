@@ -1,0 +1,112 @@
+<header class="topbar">
+  <div class="topbar__inner">
+
+    <a class="pk-brand" [routerLink]="homeLink()" aria-label="Propyka home">
+      <span class="pk-mark" aria-hidden="true">P</span>
+      <span class="brand__name">Propyka</span>
+    </a>
+
+    @if (auth.isAuthenticated()) {
+      <nav class="topbar__nav" aria-label="Main navigation">
+        <a class="nav-link" routerLink="/listings" routerLinkActive="nav-link--active" [routerLinkActiveOptions]="exactMatch">Browse</a>
+        <a class="nav-link" routerLink="/listings/mine" routerLinkActive="nav-link--active" [routerLinkActiveOptions]="exactMatch">My listings</a>
+        <a class="nav-link" routerLink="/enquiries" routerLinkActive="nav-link--active" [routerLinkActiveOptions]="exactMatch">Enquiries</a>
+        <a class="nav-link" routerLink="/favourites" routerLinkActive="nav-link--active" [routerLinkActiveOptions]="exactMatch">Saved</a>
+      </nav>
+    } @else {
+      <nav class="topbar__nav" aria-label="Main navigation">
+        <a class="nav-link" routerLink="/listings" routerLinkActive="nav-link--active" [routerLinkActiveOptions]="exactMatch">Browse</a>
+        <a class="nav-link" routerLink="/pricing" routerLinkActive="nav-link--active" [routerLinkActiveOptions]="exactMatch">Pricing</a>
+      </nav>
+    }
+
+    <div class="topbar__actions">
+      @if (auth.isAuthenticated()) {
+        <a class="tb-btn tb-btn--primary tb-hide-sm" routerLink="/listings/new">
+          <span aria-hidden="true">+</span> List property
+        </a>
+
+        <app-theme-toggle />
+
+        <div class="menu">
+          <button
+            type="button"
+            class="avatar-btn"
+            aria-haspopup="menu"
+            [attr.aria-expanded]="menuOpen()"
+            aria-label="Account menu"
+            (click)="toggleMenu()"
+          >{{ initial() }}</button>
+
+          @if (menuOpen()) {
+            <div class="menu__panel" role="menu">
+              <div class="menu__who">
+                <span class="menu__name">{{ auth.displayName() || 'Your account' }}</span>
+                <span class="menu__email">{{ auth.profile()?.email }}</span>
+                <span class="plan-chip" [class.plan-chip--pro]="auth.isPro()">
+                  {{ auth.isPro() ? 'Pro plan · ad-free' : 'Free plan · ads shown' }}
+                </span>
+              </div>
+
+              <a class="menu__item" role="menuitem" routerLink="/account" (click)="closeMenu()">Account settings</a>
+              <a class="menu__item" role="menuitem" routerLink="/listings/new" (click)="closeMenu()">List a property</a>
+              <a class="menu__item" role="menuitem" routerLink="/pricing" (click)="closeMenu()">
+                {{ auth.isPro() ? 'Your plan' : 'Upgrade to Pro' }}
+              </a>
+              @if (auth.isAdmin()) {
+                <a class="menu__item" role="menuitem" routerLink="/admin/users" (click)="closeMenu()">Admin console</a>
+              }
+
+              <div class="menu__divider" aria-hidden="true"></div>
+
+              <button class="menu__item menu__item--danger" role="menuitem" type="button" (click)="logout()">Log out</button>
+            </div>
+          }
+        </div>
+      } @else {
+        <app-theme-toggle />
+        <a class="tb-btn tb-btn--ghost tb-hide-sm" routerLink="/login">Sign in</a>
+        <a class="tb-btn tb-btn--primary" routerLink="/register">Create account</a>
+      }
+    </div>
+
+  </div>
+</header>
+
+@if (!auth.isAuthenticated()) {
+  <nav class="tabbar tabbar--guest" aria-label="Quick navigation">
+    <a class="tab" routerLink="/listings" routerLinkActive="tab--active" [routerLinkActiveOptions]="exactMatch">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      Browse
+    </a>
+    <a class="tab" routerLink="/pricing" routerLinkActive="tab--active" [routerLinkActiveOptions]="exactMatch">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>
+      Pricing
+    </a>
+    <a class="tab" routerLink="/login" routerLinkActive="tab--active" [routerLinkActiveOptions]="exactMatch">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+      Sign in
+    </a>
+  </nav>
+}
+
+@if (auth.isAuthenticated()) {
+  <nav class="tabbar" aria-label="Quick navigation">
+    <a class="tab" routerLink="/listings" routerLinkActive="tab--active" [routerLinkActiveOptions]="exactMatch">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      Browse
+    </a>
+    <a class="tab" routerLink="/favourites" routerLinkActive="tab--active" [routerLinkActiveOptions]="exactMatch">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      Saved
+    </a>
+    <a class="tab" routerLink="/enquiries" routerLinkActive="tab--active" [routerLinkActiveOptions]="exactMatch">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Enquiries
+    </a>
+    <a class="tab" routerLink="/listings/mine" routerLinkActive="tab--active" [routerLinkActiveOptions]="exactMatch">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.4 12 3.2l9 7.2"/><path d="M5.6 9.3V20.4h12.8V9.3"/></svg>
+      Mine
+    </a>
+  </nav>
+}
