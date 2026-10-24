@@ -1,21 +1,7 @@
 <div class="shell pk-grid-bg">
 
   <!-- Top bar -->
-  <header class="topbar">
-    <div class="topbar__inner">
-      <a class="pk-brand" routerLink="/home"><span class="pk-mark" aria-hidden="true">P</span><span>Propyka</span></a>
-      <div class="topbar__actions">
-        <a class="pk-btn pk-btn--ghost" routerLink="/listings">← All listings</a>
-        <app-theme-toggle />
-        @if (auth.isAuthenticated()) {
-          <span class="avatar" aria-hidden="true">{{ initial() }}</span>
-          <button type="button" class="pk-btn pk-btn--ghost" (click)="logout()">Log out</button>
-        } @else {
-          <a class="pk-btn" routerLink="/login">Sign in</a>
-        }
-      </div>
-    </div>
-  </header>
+  <app-topbar />
 
   <main class="page">
 
@@ -315,6 +301,9 @@
             </div>
 
           </div>
+
+          <!-- Freemium: house ad in the sidebar. Hidden for Pro. -->
+          <app-ad-slot variant="card" />
         </aside>
 
       </div>

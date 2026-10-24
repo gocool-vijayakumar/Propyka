@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { Auth } from '../../core/services/auth';
-import { ThemeToggle } from '../../shared/theme-toggle/theme-toggle';
+import { Topbar } from '../../shared/topbar/topbar';
 import {
   ListingsService,
   Enquiry,
@@ -14,7 +14,7 @@ type Tab = 'received' | 'sent';
 @Component({
   selector: 'app-enquiries',
   standalone: true,
-  imports: [RouterLink, DatePipe, ThemeToggle],
+  imports: [RouterLink, DatePipe, Topbar],
   templateUrl: './enquiries.html',
   styleUrl: './enquiries.css'
 })

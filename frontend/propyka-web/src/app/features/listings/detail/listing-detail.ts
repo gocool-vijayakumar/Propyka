@@ -4,7 +4,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Auth } from '../../../core/services/auth';
-import { ThemeToggle } from '../../../shared/theme-toggle/theme-toggle';
+import { Topbar } from '../../../shared/topbar/topbar';
+import { AdSlot } from '../../../shared/ad-slot/ad-slot';
 import {
   ListingsService,
   PropertyDetail,
@@ -14,7 +15,7 @@ import {
 @Component({
   selector: 'app-listing-detail',
   standalone: true,
-  imports: [FormsModule, RouterLink, DecimalPipe, DatePipe, ThemeToggle],
+  imports: [FormsModule, RouterLink, DecimalPipe, DatePipe, Topbar, AdSlot],
   templateUrl: './listing-detail.html',
   styleUrl: './listing-detail.css'
 })

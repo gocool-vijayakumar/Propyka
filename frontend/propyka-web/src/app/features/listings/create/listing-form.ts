@@ -1,10 +1,10 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe, TitleCasePipe } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Auth } from '../../../core/services/auth';
-import { ThemeToggle } from '../../../shared/theme-toggle/theme-toggle';
+import { Topbar } from '../../../shared/topbar/topbar';
 import {
   ListingsService,
   Amenity,
@@ -20,7 +20,7 @@ type FormStep = 'basics' | 'details' | 'location' | 'review';
 @Component({
   selector: 'app-listing-form',
   standalone: true,
-  imports: [FormsModule, RouterLink, ThemeToggle, DecimalPipe, TitleCasePipe],
+  imports: [FormsModule, Topbar, DecimalPipe, TitleCasePipe],
   templateUrl: './listing-form.html',
   styleUrl: './listing-form.css'
 })

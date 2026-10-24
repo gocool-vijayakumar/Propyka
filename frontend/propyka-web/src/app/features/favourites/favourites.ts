@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { Auth } from '../../core/services/auth';
-import { ThemeToggle } from '../../shared/theme-toggle/theme-toggle';
+import { Topbar } from '../../shared/topbar/topbar';
 import {
   ListingsService,
   PropertySummary
@@ -11,7 +11,7 @@ import {
 @Component({
   selector: 'app-favourites',
   standalone: true,
-  imports: [RouterLink, DecimalPipe, ThemeToggle],
+  imports: [RouterLink, DecimalPipe, Topbar],
   templateUrl: './favourites.html',
   styleUrl: './favourites.css'
 })

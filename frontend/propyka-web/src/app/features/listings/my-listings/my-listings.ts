@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { Auth } from '../../../core/services/auth';
-import { ThemeToggle } from '../../../shared/theme-toggle/theme-toggle';
+import { Topbar } from '../../../shared/topbar/topbar';
 import {
   ListingsService,
   PropertySummary,
@@ -12,7 +12,7 @@ import {
 @Component({
   selector: 'app-my-listings',
   standalone: true,
-  imports: [RouterLink, DatePipe, DecimalPipe, ThemeToggle],
+  imports: [RouterLink, DatePipe, DecimalPipe, Topbar],
   templateUrl: './my-listings.html',
   styleUrl: './my-listings.css'
 })

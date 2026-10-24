@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Auth } from '../../../core/services/auth';
-import { ThemeToggle } from '../../../shared/theme-toggle/theme-toggle';
+import { Topbar } from '../../../shared/topbar/topbar';
 import {
   ListingsService,
   PropertyDetail,
@@ -11,7 +11,7 @@ import {
 @Component({
   selector: 'app-listing-images',
   standalone: true,
-  imports: [RouterLink, ThemeToggle],
+  imports: [RouterLink, Topbar],
   templateUrl: './listing-images.html',
   styleUrl: './listing-images.css'
 })
