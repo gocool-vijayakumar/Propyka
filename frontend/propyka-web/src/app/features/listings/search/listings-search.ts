@@ -7,7 +7,9 @@ import { DecimalPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { Auth } from '../../../core/services/auth';
-import { ThemeToggle } from '../../../shared/theme-toggle/theme-toggle';
+import { Toasts } from '../../../core/services/toast';
+import { Topbar } from '../../../shared/topbar/topbar';
+import { AdSlot } from '../../../shared/ad-slot/ad-slot';
 import {
   ListingsService,
   PropertySummary,
@@ -20,7 +22,7 @@ import {
 @Component({
   selector: 'app-listings-search',
   standalone: true,
-  imports: [FormsModule, RouterLink, DecimalPipe, ThemeToggle],
+  imports: [FormsModule, RouterLink, DecimalPipe, Topbar, AdSlot],
   templateUrl: './listings-search.html',
   styleUrl: './listings-search.css'
 })
@@ -29,6 +31,7 @@ export class ListingsSearch implements OnInit {
   private listings = inject(ListingsService);
   readonly auth = inject(Auth);
   private router = inject(Router);
+  private toasts = inject(Toasts);
 
   // ── Data ──────────────────────────────────────────────────────────────────
   properties = signal<PropertySummary[]>([]);
@@ -192,6 +195,9 @@ export class ListingsSearch implements OnInit {
         const reverted = new Set(this.favouriteIds());
         if (isFav) reverted.add(id); else reverted.delete(id);
         this.favouriteIds.set(reverted);
+        this.toasts.error(
+          isFav ? 'Could not remove that listing from Saved.' : 'Could not save that listing. Try again.'
+        );
       }
     });
   }

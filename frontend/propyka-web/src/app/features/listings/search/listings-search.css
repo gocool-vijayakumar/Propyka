@@ -145,3 +145,82 @@
   .search-bar__inner { flex-direction: column; }
   .city-input { width: 100%; }
 }
+
+/* =========================
+   POLISH — card motion, glass save button, filter pills
+   ========================= */
+
+.property-card {
+  transition:
+    transform 0.24s cubic-bezier(0.2, 0.7, 0.3, 1),
+    box-shadow 0.24s cubic-bezier(0.2, 0.7, 0.3, 1),
+    border-color 0.24s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.property-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-lg);
+}
+
+.favourite-btn {
+  background: color-mix(in srgb, var(--surface) 78%, transparent);
+  color: var(--text-1);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.favourite-btn:hover {
+  background: var(--surface);
+  color: var(--danger);
+}
+
+.favourite-btn--active {
+  background: var(--danger);
+  border-color: transparent;
+  color: #fff;
+}
+
+.favourite-btn--active:hover {
+  background: var(--danger);
+  color: #fff;
+}
+
+.filter-pill {
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.filter-pill:active {
+  transform: scale(0.97);
+}
+
+.search-input-wrap .pk-input {
+  height: 48px;
+}
+
+.pk-select {
+  height: 40px;
+  padding: 0 var(--sp-3);
+  background: var(--surface-inset);
+  color: var(--text-1);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  font: inherit;
+  font-size: var(--fs-sm);
+  cursor: pointer;
+}
+
+.pk-select:hover {
+  border-color: var(--border-strong);
+}
+
+.pk-select:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+

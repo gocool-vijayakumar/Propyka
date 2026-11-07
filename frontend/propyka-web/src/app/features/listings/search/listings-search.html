@@ -1,27 +1,7 @@
 <div class="shell pk-grid-bg">
 
   <!-- Top bar -->
-  <header class="topbar">
-    <div class="topbar__inner">
-      <a class="pk-brand" routerLink="/home">
-        <span class="pk-mark" aria-hidden="true">P</span>
-        <span>Propyka</span>
-      </a>
-
-      <div class="topbar__actions">
-        <a class="pk-btn pk-btn--ghost" routerLink="/listings/new">+ List property</a>
-        <a class="pk-btn pk-btn--ghost" routerLink="/listings/mine">My listings</a>
-        <a class="pk-btn pk-btn--ghost" routerLink="/enquiries">Enquiries</a>
-        <a class="pk-btn pk-btn--ghost" routerLink="/favourites">Saved</a>
-        @if (auth.isAdmin()) {
-          <a class="pk-btn pk-btn--ghost" routerLink="/admin/users">Admin</a>
-        }
-        <app-theme-toggle />
-        <span class="avatar" aria-hidden="true">{{ initial() }}</span>
-        <button type="button" class="pk-btn pk-btn--ghost" (click)="logout()">Log out</button>
-      </div>
-    </div>
-  </header>
+  <app-topbar />
 
   <main class="page">
 
@@ -171,7 +151,7 @@
     <!-- Property grid -->
     @if (!isLoading() && properties().length > 0) {
       <div class="property-grid">
-        @for (property of properties(); track property.id) {
+        @for (property of properties(); track property.id; let i = $index) {
           <a
             class="property-card"
             [routerLink]="['/listings', property.slug]"
@@ -259,6 +239,11 @@
               </div>
             </div>
           </a>
+
+          <!-- Freemium: a house ad after every sixth listing. Hidden for Pro. -->
+          @if ((i + 1) % 6 === 0) {
+            <app-ad-slot variant="card" />
+          }
         }
       </div>
 
