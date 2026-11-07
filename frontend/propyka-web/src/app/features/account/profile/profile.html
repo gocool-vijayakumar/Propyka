@@ -1,15 +1,5 @@
 <div class="shell pk-grid-bg">
-  <header class="topbar">
-    <div class="topbar__inner">
-      <a class="pk-brand" routerLink="/home"><span class="pk-mark" aria-hidden="true">P</span><span>Propyka</span></a>
-      <div class="topbar__actions">
-        <a class="pk-btn pk-btn--ghost" routerLink="/home">← Home</a>
-        <app-theme-toggle />
-        <span class="avatar" aria-hidden="true">{{ initial() }}</span>
-        <button type="button" class="pk-btn pk-btn--ghost" (click)="logout()">Log out</button>
-      </div>
-    </div>
-  </header>
+  <app-topbar />
 
   <main class="page">
     <h1 class="page-title">Account</h1>
@@ -40,6 +30,48 @@
 
       <button class="pk-btn" (click)="saveProfile()" [disabled]="isSaving()">
         {{ isSaving() ? 'Saving…' : 'Save changes' }}
+      </button>
+    </section>
+
+    <!-- Plan -->
+    <section class="section pk-card plan-section">
+      <h2 class="section-title">Your plan</h2>
+      <div class="plan-row">
+        <div>
+          <p class="plan-row__name">{{ auth.isPro() ? 'Pro' : 'Free' }}</p>
+          <p class="plan-row__text">
+            {{ auth.isPro() ? 'Ad-free, with higher listing and saved limits.' : 'Includes ads and basic listing limits. Upgrade to go ad-free.' }}
+          </p>
+        </div>
+        <a class="pk-btn pk-btn--ghost" routerLink="/pricing">{{ auth.isPro() ? 'View plans' : 'Upgrade' }}</a>
+      </div>
+    </section>
+
+    <!-- Change password -->
+    <section class="section pk-card">
+      <h2 class="section-title">Change password</h2>
+
+      <div class="field">
+        <label class="pk-label" for="cur-pw">Current password</label>
+        <input id="cur-pw" type="password" class="pk-input" autocomplete="current-password" [value]="currentPassword()" (input)="currentPassword.set($any($event.target).value)" />
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label class="pk-label" for="new-pw">New password</label>
+          <input id="new-pw" type="password" class="pk-input" autocomplete="new-password" [value]="newPassword()" (input)="newPassword.set($any($event.target).value)" />
+        </div>
+        <div class="field">
+          <label class="pk-label" for="confirm-pw">Confirm new password</label>
+          <input id="confirm-pw" type="password" class="pk-input" autocomplete="new-password" [value]="confirmPassword()" (input)="confirmPassword.set($any($event.target).value)" />
+        </div>
+      </div>
+      <span class="field-hint">At least 8 characters, with upper and lower case, a number and a symbol. You will be signed out after changing it.</span>
+
+      @if (passwordError()) { <p class="error-msg" role="alert">{{ passwordError() }}</p> }
+
+      <button class="pk-btn" (click)="changePassword()" [disabled]="isChangingPassword()">
+        {{ isChangingPassword() ? 'Updating…' : 'Update password' }}
       </button>
     </section>
 
