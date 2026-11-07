@@ -9,7 +9,10 @@ public static class PropykaRoles
     public const string Moderator = "Moderator";
     public const string Member = "Member";
 
-    public static readonly string[] All = [Admin, Moderator, Member];
+    /// <summary>Paid plan. Granted by an admin; removes ads and raises limits.</summary>
+    public const string Pro = "Pro";
+
+    public static readonly string[] All = [Admin, Moderator, Member, Pro];
 }
 
 public static class IdentitySeeder

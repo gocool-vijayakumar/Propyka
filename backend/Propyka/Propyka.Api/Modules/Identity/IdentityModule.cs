@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Propyka.Api.Common.Plans;
 using Propyka.Api.Modules.Identity.Autorization;
 using Propyka.Api.Modules.Identity.Domain;
 using Propyka.Api.Persistence;
@@ -34,6 +35,7 @@ public static class IdentityModule
             .AddEntityFrameworkStores<PropykaDbContext>();
 
         services.AddScoped<IAuthorizationHandler, ActiveUserHandler>();
+        services.AddScoped<IPlanService, PlanService>();
 
         services.AddAuthorization(options =>
         {

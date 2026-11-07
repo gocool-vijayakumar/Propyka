@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Propyka.Api.Common;
+using Propyka.Api.Common.Plans;
 using Propyka.Api.Modules.Identity.Contracts;
 using Propyka.Api.Modules.Identity.Domain;
 
@@ -71,6 +72,7 @@ public class AccountController : ControllerBase
         }
 
         var roles = await _userManager.GetRolesAsync(user);
+        var plan = PlanCatalog.ForRoles(roles);
 
         return new UserProfileResponse(
             user.Id,
@@ -78,7 +80,9 @@ public class AccountController : ControllerBase
             user.FirstName,
             user.LastName,
             user.CreatedAt,
-            roles.ToList());
+            roles.ToList(),
+            plan.Name,
+            plan.AdsEnabled);
     }
 
     [HttpPut("me")]

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Propyka.Api.Common;
+using Propyka.Api.Common.Plans;
 using Propyka.Api.Common.Storage;
 using Propyka.Api.Modules.Listings.Contracts;
 using Propyka.Api.Modules.Listings.Domain;
@@ -29,20 +30,21 @@ public interface IPropertyImageService
 
 public sealed class PropertyImageService : IPropertyImageService
 {
-    private const int MaxImagesPerProperty = 20;
-
     private readonly PropykaDbContext _db;
     private readonly IFileStorage _storage;
     private readonly FileStorageOptions _options;
+    private readonly IPlanService _plans;
 
     public PropertyImageService(
         PropykaDbContext db,
         IFileStorage storage,
-        IOptions<FileStorageOptions> options)
+        IOptions<FileStorageOptions> options,
+        IPlanService plans)
     {
         _db = db;
         _storage = storage;
         _options = options.Value;
+        _plans = plans;
     }
 
     public async Task<PropertyImageResponse> AddAsync(
@@ -69,9 +71,13 @@ public sealed class PropertyImageService : IPropertyImageService
             throw new NotFoundException("That listing was not found.");
         }
 
-        if (property.Images.Count >= MaxImagesPerProperty)
+        var plan = await _plans.ForUserAsync(ownerId);
+
+        if (property.Images.Count >= plan.MaxPhotosPerListing)
         {
-            throw new DomainException($"A listing can have at most {MaxImagesPerProperty} images.");
+            throw new DomainException(
+                $"The {plan.Name} plan allows {plan.MaxPhotosPerListing} photos per listing. " +
+                "Remove a photo or upgrade to Pro for more.");
         }
 
         // Extension and path safety are enforced inside LocalFileStorage, so

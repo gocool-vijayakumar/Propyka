@@ -8,7 +8,9 @@ public sealed record UserProfileResponse(
     string FirstName,
     string LastName,
     DateTimeOffset CreatedAt,
-    IReadOnlyList<string> Roles);
+    IReadOnlyList<string> Roles,
+    string Plan,
+    bool AdsEnabled);
 
 public sealed record AdminUserResponse(
     string Id,
