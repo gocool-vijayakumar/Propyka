@@ -1,0 +1,84 @@
+<div class="shell pk-grid-bg">
+
+  <app-topbar />
+
+  <main class="page">
+
+    <header class="intro">
+      <span class="eyebrow">Plans</span>
+      <h1 class="intro__title">Browse free. <span class="pk-gradient-text">Go ad-free</span> when you are ready.</h1>
+      <p class="intro__text">
+        Everyone can search and view listings. Free accounts see advertisements and have
+        modest limits. Pro removes the ads and gives you room to list more.
+      </p>
+    </header>
+
+    @if (isLoading()) {
+      <div class="plans" aria-busy="true">
+        @for (n of [1, 2]; track n) {
+          <div class="plan pk-card plan--skeleton"></div>
+        }
+      </div>
+    } @else if (loadFailed()) {
+      <div class="state-empty">
+        <p class="state-empty__title">We could not load the plans.</p>
+        <p class="state-empty__text">Check your connection and try again in a moment.</p>
+      </div>
+    } @else {
+      <div class="plans">
+        @for (plan of catalogue(); track plan.name) {
+          <article class="plan pk-card" [class.plan--pro]="isProPlan(plan)">
+
+            @if (isProPlan(plan)) {
+              <span class="plan__badge">Recommended</span>
+            }
+
+            <header class="plan__head">
+              <h2 class="plan__name">{{ plan.name }}</h2>
+              <p class="plan__tagline">{{ plan.tagline }}</p>
+            </header>
+
+            <p class="plan__price">
+              @if (plan.monthlyPriceInr === 0) {
+                <span class="plan__amount">Free</span>
+              } @else {
+                <span class="plan__currency">₹</span><span class="plan__amount">{{ plan.monthlyPriceInr | number:'1.0-0' }}</span>
+                <span class="plan__period">/ month</span>
+              }
+            </p>
+
+            <ul class="plan__features">
+              @for (feature of plan.features; track feature) {
+                <li>
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"
+                       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3.5 8.5 6.5 11.5 12.5 4.5" />
+                  </svg>
+                  {{ feature }}
+                </li>
+              }
+            </ul>
+
+            <div class="plan__cta">
+              @if (isCurrent(plan)) {
+                <span class="plan__current">Your current plan</span>
+              } @else if (!auth.isAuthenticated()) {
+                <a class="pk-btn" [class.pk-btn--primary]="isProPlan(plan)" [class.pk-btn--ghost]="!isProPlan(plan)" routerLink="/register">
+                  {{ isProPlan(plan) ? 'Create account to upgrade' : 'Create free account' }}
+                </a>
+              } @else if (isProPlan(plan)) {
+                <a class="pk-btn pk-btn--primary" [href]="upgradeHref()">Request Pro</a>
+                <p class="plan__note">Pro is switched on by our team once payment is confirmed.</p>
+              } @else {
+                <span class="plan__current">Included with your account</span>
+              }
+            </div>
+
+          </article>
+        }
+      </div>
+    }
+
+  </main>
+
+</div>

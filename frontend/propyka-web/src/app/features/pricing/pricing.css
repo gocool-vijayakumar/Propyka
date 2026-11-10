@@ -1,0 +1,222 @@
+:host {
+  display: block;
+}
+
+.shell {
+  min-height: 100vh;
+}
+
+.page {
+  width: min(var(--page-max), 92%);
+  margin: 0 auto;
+  padding: var(--sp-7) 0 var(--sp-7);
+}
+
+.eyebrow {
+  display: inline-flex;
+  padding: 6px 12px;
+  background: var(--brand-soft);
+  border: 1px solid var(--brand-line);
+  border-radius: var(--r-pill);
+  color: var(--brand-ink);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+}
+
+.intro {
+  max-width: 44rem;
+  margin-bottom: var(--sp-7);
+}
+
+.intro__title {
+  margin-top: var(--sp-4);
+  font-size: clamp(2.1rem, 4.6vw, 3.25rem);
+  font-weight: 800;
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tr-display);
+}
+
+.intro__text {
+  margin-top: var(--sp-4);
+  color: var(--text-2);
+  font-size: var(--fs-lg);
+  line-height: var(--lh-body);
+}
+
+.plans {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-5);
+  max-width: 60rem;
+}
+
+.plan {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  padding: var(--sp-6);
+  box-shadow: var(--shadow-sm);
+}
+
+.plan--pro {
+  border-color: var(--brand-line);
+  box-shadow: var(--shadow-md), 0 0 0 1px var(--brand-soft);
+}
+
+.plan--skeleton {
+  min-height: 420px;
+  background: linear-gradient(90deg, var(--surface) 0%, var(--surface-2) 50%, var(--surface) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+@keyframes shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
+}
+
+.plan__badge {
+  position: absolute;
+  top: -12px;
+  right: var(--sp-5);
+  padding: 4px 10px;
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  border-radius: var(--r-pill);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+}
+
+.plan__name {
+  font-size: var(--fs-2xl);
+}
+
+.plan__tagline {
+  margin-top: var(--sp-2);
+  color: var(--text-3);
+  font-size: var(--fs-sm);
+}
+
+.plan__price {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  color: var(--text-1);
+}
+
+.plan__currency {
+  font-size: var(--fs-xl);
+  font-weight: 600;
+}
+
+.plan__amount {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: var(--tr-display);
+  line-height: 1;
+}
+
+.plan__period {
+  margin-left: var(--sp-2);
+  color: var(--text-3);
+  font-size: var(--fs-sm);
+}
+
+.plan__features {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  flex: 1;
+}
+
+.plan__features li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+}
+
+.plan__features svg {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  color: var(--success);
+}
+
+.plan__cta .pk-btn {
+  width: 100%;
+  text-decoration: none;
+}
+
+.plan__current {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 46px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+.plan__note {
+  margin-top: var(--sp-3);
+  color: var(--text-3);
+  font-size: var(--fs-xs);
+  text-align: center;
+}
+
+.state-empty {
+  padding: var(--sp-7) var(--sp-5);
+  text-align: center;
+}
+
+.state-empty__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  font-weight: 700;
+}
+
+.state-empty__text {
+  margin-top: var(--sp-2);
+  color: var(--text-2);
+}
+
+@media (max-width: 760px) {
+  .plans {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .page {
+    width: 90%;
+    padding: var(--sp-6) 0 var(--sp-6);
+  }
+
+  .plan {
+    padding: var(--sp-5);
+  }
+
+  .plan__amount {
+    font-size: 2.5rem;
+  }
+}
+
+/* Keep "Go ad-free" on one line so it never splits at the hyphen */
+.intro__title .pk-gradient-text {
+  white-space: nowrap;
+}

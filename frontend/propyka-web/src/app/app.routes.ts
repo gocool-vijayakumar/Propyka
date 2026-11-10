@@ -72,6 +72,13 @@ export const routes: Routes = [
       import('./features/listings/detail/listing-detail').then(m => m.ListingDetail)
   },
 
+  // ── Plans (public) ──────────────────────────────────────────────────────────
+  {
+    path: 'pricing',
+    loadComponent: () =>
+      import('./features/pricing/pricing').then(m => m.Pricing)
+  },
+
   // ── Enquiries ───────────────────────────────────────────────────────────────
   {
     path: 'enquiries',
