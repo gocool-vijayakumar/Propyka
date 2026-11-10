@@ -19,3 +19,24 @@
 .pk-btn--danger { background: var(--bg-danger); color: var(--text-danger); border-color: var(--border-danger); }
 .pk-btn--danger:hover { background: var(--text-danger); color: #fff; }
 @media (max-width: 500px) { .field-row { grid-template-columns: 1fr; } }
+
+/* Plan summary */
+.plan-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+}
+
+.plan-row__name {
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.plan-row__text {
+  margin-top: var(--sp-1);
+  color: var(--text-3);
+  font-size: var(--fs-sm);
+}

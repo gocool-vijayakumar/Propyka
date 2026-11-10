@@ -1,0 +1,15 @@
+@if (auth.adsEnabled()) {
+  <aside class="ad ad--{{ variant() }}" aria-label="Sponsored">
+    <span class="ad__tag">Advertisement</span>
+
+    <div class="ad__body">
+      <p class="ad__headline">Reach buyers and renters across India</p>
+      <p class="ad__text">Put your property, project or brand in front of people already searching.</p>
+    </div>
+
+    <div class="ad__actions">
+      <a class="ad__cta" href="mailto:advertise@propyka.example?subject=Advertising%20enquiry">Advertise with us</a>
+      <a class="ad__remove" routerLink="/pricing">Go ad-free</a>
+    </div>
+  </aside>
+}
