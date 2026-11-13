@@ -44,12 +44,17 @@ describe('Topbar', () => {
     fixture.detectChanges();
   });
 
-  it('offers sign in and no account menu to guests', () => {
+  it('offers sign in, the guest tab bar and no account menu to guests', () => {
     const element: HTMLElement = fixture.nativeElement;
 
     expect(element.textContent).toContain('Sign in');
     expect(element.querySelector('.avatar-btn')).toBeNull();
-    expect(element.querySelector('.tabbar')).toBeNull();
+
+    // Guests get the reduced tab bar (Browse, Pricing, Sign in), not the member one.
+    const tabbar = element.querySelector('.tabbar');
+    expect(tabbar?.classList.contains('tabbar--guest')).toBe(true);
+    expect(tabbar?.textContent).toContain('Pricing');
+    expect(tabbar?.textContent).not.toContain('Saved');
   });
 
   it('opens the account menu for a signed-in member', () => {
