@@ -1,6 +1,6 @@
 # Propyka — Project State
 
-**Updated:** 8 October 2026
+**Updated:** 13 November 2026
 **Repo:** github.com/gocool-vijayakumar/Propyka (public)
 **Local root:** `D:\Projects\Dev\Propyka`
 
@@ -18,7 +18,9 @@ and what is *next*.
 - **Milestone 3: Listings.** Built end to end: API, photos, favourites, enquiries,
   search and the owner workspace. Not yet hardened, and not yet deployed.
 - **Milestone 4: MVP deployment.** Code is ready (see section 3, "Before real users").
-  Waiting on a hosting decision, a verified backend build and a clean-up of the test account.
+  The backend build is verified and the full flow runs on the development laptop.
+  Current focus is local quality, not a public deploy. Waiting on a hosting decision
+  and a clean-up of the test account.
 
 ---
 
@@ -71,6 +73,9 @@ and what is *next*.
 - Soft delete is blocked in two places: `PropykaSignInManager.CanSignInAsync` and the
   `ActiveUser` default authorization policy, so tokens issued before deletion stop
   working immediately.
+- **Listings of deleted accounts are hidden (new).** Search, listing detail, saving a
+  favourite and sending an enquiry all treat them as not found. The rule lives in
+  `PropertyVisibility.PubliclyVisible()`. Restoring the account brings them back.
 - No EF global query filter on users, deliberately (see Decisions).
 
 ### Plans and ads (new)
@@ -79,7 +84,7 @@ and what is *next*.
   - **Free:** 3 active listings, 6 photos per listing, 20 saved, ads on, free.
   - **Pro:** 50 active listings, 20 photos per listing, 500 saved, ads off, INR 499 a month.
 - The plan comes from roles (`Pro` or `Admin`), so there is no schema change. `PlanService` reads roles from the database, not the token, so a change applies at once for limit checks.
-- Limits enforced: listing creation (`PropertyService`), photo uploads (`PropertyImageService`), favourites (`FavoriteService`). Over-limit requests return a readable 400.
+- Limits enforced: listing creation and re-publishing an archived, sold or rented listing (`PropertyService`), photo uploads (`PropertyImageService`), favourites (`FavoriteService`). Over-limit requests return a readable 400. Before the re-publish check, a Free user could archive, create more and then re-publish everything.
 - Profile returns `Plan` and `AdsEnabled`. The web `Auth` service exposes `isPro` and `adsEnabled`.
 - Ads: an `<app-ad-slot>` placeholder. Shown after every sixth listing in search, in the detail sidebar and as a banner on home. Hidden for Pro and Admin. It is a house ad, not a network tag.
 - Public browsing: search and listing detail are open to guests. Saving, enquiring and managing listings still require sign-in.
@@ -97,7 +102,7 @@ and what is *next*.
 
 - Entities in `Modules/Listings/Domain`: `Property`, `PropertyAddress`,
   `PropertyImage`, `Amenity`, `PropertyAmenity`, `Favorite`, `Enquiry`, plus enums.
-- Public search: published listings only. Filters: text, city, sale or rent, kind,
+- Public search: published listings of active accounts only. Filters: text, city, sale or rent, kind,
   price range, minimum bedrooms, amenities (all must match), sort.
 - Public detail by slug, with view count incremented atomically (`ExecuteUpdate`).
 - Owner workspace: `GET /api/properties/mine`, `GET /mine/{id}` (drafts included),
@@ -140,13 +145,17 @@ and what is *next*.
 - Auth interceptor: 6 behaviour tests (token attached, single refresh, parallel 401s
   share one refresh, no refresh on `/login`, sign-out when refresh fails, other errors
   pass through)
-- 13 spec files, 24 tests, all passing: `npx ng test --watch=false`. The generated
+- 14 spec files, 30 tests, all passing: `npx ng test --watch=false`. The generated
   stubs were failing before this session (missing HTTP and router providers, a wrong
   import path in `admin.spec.ts`, a stale title assertion in `app.spec.ts`, and no
   `matchMedia` in jsdom). They are fixed, not removed.
 - Coverage is thin outside the auth interceptor. Most specs only check that a
   component or service can be created.
 - No backend test project yet.
+- **Manual API smoke test (13 Nov 2026), all passing:** register, sign in, create a
+  listing, upload a photo, publish, the Free listing limit on create and on re-publish,
+  archive, public search, plans and health. A deleted account's listings disappear
+  from search. The throwaway test accounts and photos were removed afterwards.
 
 ---
 
@@ -158,25 +167,24 @@ and what is *next*.
       The previous README published a test login and password. The repo is public, so
       treat that password as compromised. Delete the account, or change its password, in
       every environment that used it.
-- [ ] **Verify the backend builds.** This session's changes to `Program.cs`,
-      `LocalFileStorage.cs`, `FavoriteService.cs`, `PropertyService.cs` and
-      `appsettings.json` were checked with the Roslyn compiler against the ASP.NET Core
-      reference pack. NuGet was blocked in that sandbox, so there is no full restore or
-      run. Run `dotnet build` locally, then run the API and sign in once.
+- [x] **Verify the backend builds.** It did not: `Program.cs` used
+      `ForwardedHeadersOptions.KnownIPNetworks`, which only exists in .NET 10. Fixed to
+      `KnownNetworks`. `dotnet build` passes and the API runs and signs in locally.
+- [ ] **Upgrade to .NET 10.** .NET 8 support ended on 10 November 2026, so the API no
+      longer gets security patches. .NET 10 is the current long-term release and its SDK
+      is already installed on the development laptop.
 - [ ] **Choose a host** for the API (with PostgreSQL) and the web app. Set
       `environment.production.ts` and the API's `Cors__AllowedOrigins__0` to match.
 - [ ] **Photo storage.** Local disk on a platform host is lost on redeploy. Attach a
       persistent volume at minimum, or implement `IFileStorage` for Azure Blob or S3.
       `StorageKey` is already a key, not a URL, so no data migration is needed.
-- [ ] **Delete superseded front-end files:** `src/app/core/services/user.ts` and
-      `user.spec.ts`. They call `/api/Test/private`, which no longer exists. Also decide
-      about `frontend/propyka-web/src.zip`, which looks like a stray snapshot. Remove it
-      from the repo unless it is intentional.
+- [x] **Delete superseded front-end files:** `user.ts` and `user.spec.ts` are removed,
+      and so is the stray `src.zip`.
 - [ ] **Watch the first CI run** on GitHub. Fix anything that differs from the local build.
 - [ ] **Replace the placeholder addresses:** `billing@propyka.example` (pricing page), `advertise@propyka.example` (ad slot) and `apiUrl` in `environment.production.ts`.
 - [ ] **Payments:** no payment provider is connected. Pro is granted by an admin after a manual payment. Choose a provider before charging anyone.
 - [ ] **Ad network:** the ad slot is a house placeholder. Replace its body with the network's tag once one is chosen. Check the network's policy on placement near listings.
-- [ ] **Run `build.cmd` on the Windows machine.** The PowerShell script was written in this session and has not been run on Windows. Also run `dotnet build` once, as above.
+- [ ] **Run `build.cmd` on the Windows machine.** The PowerShell script has not been run on Windows yet. `dotnet build` and the web tests now pass on their own.
 
 ### Next (product quality)
 
@@ -190,7 +198,21 @@ and what is *next*.
       orphan file.
 - [ ] **Search input:** escape `%` and `_` before building `ILIKE` patterns.
 - [ ] **Role changes:** `SetRoles` does not update the security stamp, so a demoted admin
-      keeps admin rights until their token expires. Update the stamp on role changes.
+      keeps admin rights until their token expires. Update the stamp on role changes. It
+      also ignores the result of adding and removing roles.
+- [ ] **Upload rate limit is per IP, not per user.** `UseRateLimiter()` runs before
+      `UseAuthentication()`, so `context.User` is empty when the Upload policy picks its
+      partition key. Move the rate limiter after authentication.
+- [ ] **Sign-in has no rate limit.** Lockout protects one account, not many accounts
+      tried from one address.
+- [ ] **Guests landing on `/` are sent to sign in.** `/` redirects to `/home`, which needs
+      an account. A public landing page, or redirecting guests to `/listings`, fits a
+      marketplace better.
+- [ ] **Search engines cannot read listings.** The app renders only in the browser and
+      pages have no per-listing title or description. Add server-side rendering and a
+      sitemap before relying on search traffic.
+- [ ] **Forgot password and email confirmation** (also listed under out of scope). Users
+      will expect these before launch.
 - [x] **Plans, ads and public browsing** (see section 2).
 - [x] **Build script** `build.cmd` / `build.ps1`.
 - [x] **Global error and toast notifications.** `Toasts` service and `<app-toaster>`, used for save, update and failure messages.
@@ -260,6 +282,11 @@ to `false` otherwise.
 default once there are several instances racing to migrate. Turn it off then, and run
 `dotnet ef database update` as a separate deploy step.
 
+**Deleted owners' listings are hidden by a query rule, not a status change.**
+`PubliclyVisible()` checks `Status == Published` and that the owner is not deleted.
+Changing the listings to Archived on account deletion would lose their real status,
+and restoring the account would then need to guess what to put back.
+
 **Deleting a property cascades** to address, images, amenity links, favourites and enquiries.
 Deleting a *user* is `Restrict`, because orphaned listings are worse than a failed delete.
 Enquiries use `SetNull` on sender, so an enquiry survives when the sender closes their account.
@@ -287,6 +314,10 @@ later needs no migration. URLs are built at read time from the storage backend.
 `InfoRequest`. Never name your own DTO any of those. Mitigated with
 `options.CustomSchemaIds(type => type.FullName?.Replace("+", "."))`. The real error is
 always in the terminal, never the browser.
+
+**`KnownIPNetworks` is .NET 10 only.** On `net8.0` the forwarded-headers allow-list is
+`KnownNetworks`. Code written against newer docs compiles in a .NET 10 sandbox and then
+breaks the real build.
 
 **The bearer token is NOT a JWT.** `MapIdentityApi` issues an encrypted `ClaimsPrincipal`
 ticket. It will not decode at jwt.io. Do not claim "JWT authentication" on a CV or README
@@ -343,6 +374,7 @@ backend/Propyka/Propyka.Api/
   Modules/Identity/SignInManager.cs           blocks deleted accounts at sign-in
   Modules/Listings/Controllers/               properties, enquiries, favourites, amenities
   Modules/Listings/Services/                  property, image, enquiry, favourite services
+  Modules/Listings/Services/PropertyVisibility.cs   what the public can see (one rule)
   Modules/Listings/Domain/                    entities and enums
   Modules/Listings/Configurations/            EF mappings
   Common/Storage/LocalFileStorage.cs          photo storage (swap for blob storage here)
