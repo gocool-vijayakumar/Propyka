@@ -40,7 +40,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     // The default allow-list only trusts loopback, which would ignore a remote
     // platform proxy. Only enable Proxy:TrustForwardedHeaders when nothing can
     // reach the app except through that proxy, or clients can spoof their IP.
-    options.KnownIPNetworks.Clear();
+    options.KnownNetworks.Clear();
     options.KnownProxies.Clear();
 });
 
