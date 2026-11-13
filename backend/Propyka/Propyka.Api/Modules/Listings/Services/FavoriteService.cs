@@ -91,8 +91,9 @@ public sealed class FavoriteService : IFavoriteService
     {
         // Drafts and archived listings are hidden from the public, so they cannot
         // be saved either. Otherwise this endpoint would reveal that they exist.
-        var exists = await _db.Properties.AnyAsync(
-            p => p.Id == propertyId && p.Status == ListingStatus.Published, ct);
+        var exists = await _db.Properties
+            .PubliclyVisible()
+            .AnyAsync(p => p.Id == propertyId, ct);
 
         if (!exists)
         {

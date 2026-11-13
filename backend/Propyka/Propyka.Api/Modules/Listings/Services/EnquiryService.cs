@@ -40,11 +40,12 @@ public sealed class EnquiryService : IEnquiryService
     {
         var property = await _db.Properties
             .AsNoTracking()
+            .PubliclyVisible()
             .Where(p => p.Id == propertyId)
-            .Select(p => new { p.Id, p.OwnerId, p.Status })
+            .Select(p => new { p.Id, p.OwnerId })
             .FirstOrDefaultAsync(ct);
 
-        if (property is null || property.Status != ListingStatus.Published)
+        if (property is null)
         {
             // Unpublished listings are not publicly visible, so an enquiry
             // against one is treated exactly like an enquiry against nothing.
