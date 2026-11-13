@@ -10,8 +10,21 @@ The construction-materials marketplace and the contractor platform from the orig
 - **Listings:** create, edit, publish and archive. Upload up to 20 photos, choose the cover and reorder them.
 - **Browsing:** search, filter by city, sale or rent, type, price, bedrooms and amenities, sort, and view listing detail pages with view counts.
 - **Favourites** and **enquiries** from listing pages, with an inbox for listing owners.
+- **Plans:** Free and Pro. Browsing and listing pages are public, so guests can look around without an account. Free accounts see house ads and have limits (3 active listings, 6 photos per listing, 20 saved). Pro removes the ads and raises the limits (50, 20, 500). `GET /api/plans` serves the catalogue and the pricing page reads it.
 - **Admin console:** search users, change roles, deactivate and restore accounts.
-- Light and dark themes.
+- Light and dark themes, a shared header with an account menu, a bottom tab bar on phones, and toast messages for saves, updates and failures.
+
+## Build
+
+From the repo root, run one command to build the API and the web app into `dist/`:
+
+```bat
+build.cmd
+```
+
+The script restores and publishes the API to `dist\api` (run it with `dotnet dist\api\Propyka.Api.dll`), runs the web unit tests, and builds the production web app into `dist\web`. A `dist\BUILD-INFO.txt` file records the time and commit.
+
+Options: `build.cmd -SkipTests`, `-SkipApi`, `-SkipWeb`, `-CleanWeb` (runs `npm ci` again), `-Configuration Debug`. The script warns if `environment.production.ts` still has the placeholder API address. `dist/` is ignored by git.
 
 ## Stack
 
@@ -91,7 +104,7 @@ The health check is at `/health`.
 ### Web app
 
 1. Set `apiUrl` in `frontend/propyka-web/src/environments/environment.production.ts` to the API's public HTTPS address, with no trailing slash.
-2. Run `npm run build`. The output is in `dist/propyka-web/browser`.
+2. Run `build.cmd` from the repo root. The web app is in `dist\web`. (`npm run build` in `frontend/propyka-web` also works.)
 3. Host that folder on any static host. Configure a single-page-app fallback so that direct links such as `/listings/some-slug` serve `index.html`.
 4. Add the web app's origin to `Cors__AllowedOrigins__0` on the API.
 
@@ -126,6 +139,7 @@ Listings
   DELETE /api/properties/{id}/images/{imageId}
   POST   /api/properties/{id}/enquiries enquire (anonymous allowed, rate limited)
   GET    /api/amenities                 amenity list for forms and filters
+  GET    /api/plans                     plan catalogue (public)
 
 Owner inbox, favourites
   GET    /api/enquiries/received        enquiries on your listings
@@ -140,8 +154,10 @@ Admin (Admin and Moderator read; Admin writes)
   GET    /api/admin/users               search, status filter, paging
   POST   /api/admin/users/{id}/trash
   POST   /api/admin/users/{id}/restore
-  PUT    /api/admin/users/{id}/roles
+  PUT    /api/admin/users/{id}/roles    set roles. Give a member the Pro role here to switch on Pro.
 ```
+
+**Granting Pro:** payments are not connected yet, so Pro is switched on by hand. Sign in as an admin, find the member, and add the `Pro` role. Admins also get Pro limits and no ads. The member must sign out and back in before the new role applies, because roles are read from the token.
 
 ## Continuous integration
 
