@@ -52,3 +52,10 @@ desktop.ini
 
 # Uploaded listing photos are user data, not source. Never commit them.
 **/wwwroot/uploads/
+
+# =========================
+# Claude (local tooling and generated files)
+# =========================
+
+.claude/
+claude-outputs/
