@@ -32,7 +32,7 @@ public sealed class PropertyService : IPropertyService
         // Only published listings are ever visible publicly.
         var q = _db.Properties
             .AsNoTracking()
-            .Where(p => p.Status == ListingStatus.Published);
+            .PubliclyVisible();
 
         if (!string.IsNullOrWhiteSpace(query.Search))
         {
@@ -124,7 +124,8 @@ public sealed class PropertyService : IPropertyService
         string slug, CancellationToken ct = default)
     {
         var property = await DetailQuery()
-            .FirstOrDefaultAsync(p => p.Slug == slug && p.Status == ListingStatus.Published, ct);
+            .PubliclyVisible()
+            .FirstOrDefaultAsync(p => p.Slug == slug, ct);
 
         if (property is null)
         {
@@ -274,6 +275,10 @@ public sealed class PropertyService : IPropertyService
         }
     }
 
+    /// <summary>Must match the statuses counted in GuardActiveListingLimitAsync.</summary>
+    private static bool OccupiesSlot(ListingStatus status) =>
+        status is ListingStatus.Draft or ListingStatus.Published or ListingStatus.UnderOffer;
+
     public async Task<bool> UpdateAsync(
         Guid id, string ownerId, CreatePropertyRequest request, CancellationToken ct = default)
     {
@@ -376,6 +381,14 @@ public sealed class PropertyService : IPropertyService
         if (property.Price <= 0)
         {
             throw new DomainException("Set a price above zero before publishing.");
+        }
+
+        // Drafts and listings under offer already hold a slot. An archived, sold
+        // or rented listing gave its slot back, so re-publishing it must claim one,
+        // or a Free user could archive, create more, then re-publish them all.
+        if (!OccupiesSlot(property.Status))
+        {
+            await GuardActiveListingLimitAsync(property.OwnerId, ct);
         }
 
         property.Status = ListingStatus.Published;
