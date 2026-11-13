@@ -6,11 +6,11 @@ The construction-materials marketplace and the contractor platform from the orig
 
 ## What works today
 
-- **Accounts:** register, sign in, silent session refresh, edit your name, change your password, delete your account (soft delete; an admin can restore it).
+- **Accounts:** register, sign in, silent session refresh, edit your name, change your password, delete your account (soft delete; an admin can restore it). A deleted account's listings are hidden from the public until it is restored.
 - **Listings:** create, edit, publish and archive. Upload up to 20 photos, choose the cover and reorder them.
 - **Browsing:** search, filter by city, sale or rent, type, price, bedrooms and amenities, sort, and view listing detail pages with view counts.
 - **Favourites** and **enquiries** from listing pages, with an inbox for listing owners.
-- **Plans:** Free and Pro. Browsing and listing pages are public, so guests can look around without an account. Free accounts see house ads and have limits (3 active listings, 6 photos per listing, 20 saved). Pro removes the ads and raises the limits (50, 20, 500). `GET /api/plans` serves the catalogue and the pricing page reads it.
+- **Plans:** Free and Pro. Browsing and listing pages are public, so guests can look around without an account. Free accounts see house ads and have limits (3 active listings, 6 photos per listing, 20 saved). Pro removes the ads and raises the limits (50, 20, 500). Re-publishing an archived listing counts against the listing limit too. `GET /api/plans` serves the catalogue and the pricing page reads it.
 - **Admin console:** search users, change roles, deactivate and restore accounts.
 - Light and dark themes, a shared header with an account menu, a bottom tab bar on phones, and toast messages for saves, updates and failures.
 
@@ -28,7 +28,7 @@ Options: `build.cmd -SkipTests`, `-SkipApi`, `-SkipWeb`, `-CleanWeb` (runs `npm 
 
 ## Stack
 
-- **API:** ASP.NET Core 8 Web API, ASP.NET Core Identity, EF Core 8 with Npgsql, PostgreSQL, Swagger.
+- **API:** ASP.NET Core 8 Web API, ASP.NET Core Identity, EF Core 8 with Npgsql, PostgreSQL, Swagger. .NET 8 support ended in November 2026, and moving to .NET 10 is planned.
 - **Web app:** Angular 22 with standalone components and signals, TypeScript, Vitest for unit tests.
 - **Auth:** bearer tokens issued by Identity's `MapIdentityApi`. They are encrypted tickets, not JWTs.
 
@@ -126,13 +126,13 @@ Accounts
   POST   /manage/info                   change password (MapIdentityApi)
 
 Listings
-  GET    /api/properties                search (public, published only)
+  GET    /api/properties                search (public; published listings of active accounts)
   GET    /api/properties/{slug}         detail (public, increments view count)
   GET    /api/properties/mine           your listings, drafts included
   GET    /api/properties/mine/{id}      one of your listings
   POST   /api/properties                create (draft)
   PUT    /api/properties/{id}           update (owner)
-  POST   /api/properties/{id}/publish   draft to published
+  POST   /api/properties/{id}/publish   draft or archived to published (plan limit applies)
   POST   /api/properties/{id}/archive   hide from search
   POST   /api/properties/{id}/images    upload photo (owner, rate limited)
   PUT    /api/properties/{id}/images/{imageId}
