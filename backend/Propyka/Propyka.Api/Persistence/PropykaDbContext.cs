@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Propyka.Api.Common;
+using Propyka.Api.Common.Geocoding;
+using Propyka.Api.Common.Plans;
 using Propyka.Api.Modules.Identity.Domain;
 using Propyka.Api.Modules.Listings.Domain;
 using Property = Propyka.Api.Modules.Listings.Domain.Property;
@@ -24,6 +26,8 @@ public class PropykaDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<PropertyAmenity> PropertyAmenities => Set<PropertyAmenity>();
     public DbSet<Favorite> Favorites => Set<Favorite>();
     public DbSet<Enquiry> Enquiries => Set<Enquiry>();
+    public DbSet<PlanPrice> PlanPrices => Set<PlanPrice>();
+    public DbSet<GeocodeCacheEntry> GeocodeCache => Set<GeocodeCacheEntry>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
