@@ -36,6 +36,7 @@ public static class IdentityModule
 
         services.AddScoped<IAuthorizationHandler, ActiveUserHandler>();
         services.AddScoped<IPlanService, PlanService>();
+        services.AddScoped<IPlanPricingService, PlanPricingService>();
 
         services.AddAuthorization(options =>
         {

@@ -5,11 +5,11 @@ namespace Propyka.Api.Common.Plans;
 /// <summary>
 /// What each plan allows. The web app mirrors these numbers for display only;
 /// the server is the one that enforces them. Change limits here, nowhere else.
+/// Prices are not here: they live in the PlanPrices table so admins can edit them.
 /// </summary>
 public sealed record PlanDefinition(
     string Name,
     string Tagline,
-    int MonthlyPriceInr,
     bool AdsEnabled,
     int MaxActiveListings,
     int MaxPhotosPerListing,
@@ -21,7 +21,6 @@ public static class PlanCatalog
     public static readonly PlanDefinition Free = new(
         Name: "Free",
         Tagline: "Browse for free and list the basics.",
-        MonthlyPriceInr: 0,
         AdsEnabled: true,
         MaxActiveListings: 3,
         MaxPhotosPerListing: 6,
@@ -38,7 +37,6 @@ public static class PlanCatalog
     public static readonly PlanDefinition Pro = new(
         Name: "Pro",
         Tagline: "No ads, and room for a serious portfolio.",
-        MonthlyPriceInr: 499,
         AdsEnabled: false,
         MaxActiveListings: 50,
         MaxPhotosPerListing: 20,
@@ -53,6 +51,9 @@ public static class PlanCatalog
         ]);
 
     public static IReadOnlyList<PlanDefinition> All { get; } = [Free, Pro];
+
+    public static PlanDefinition? ByName(string name) =>
+        All.FirstOrDefault(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
 
     /// <summary>Pro members and admins get the Pro plan. Everyone else is Free.</summary>
     public static PlanDefinition ForRoles(IEnumerable<string> roles)
