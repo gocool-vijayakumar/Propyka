@@ -12,4 +12,7 @@ public static class RateLimitPolicies
 
     /// <summary>Authenticated but expensive: image uploads.</summary>
     public const string Upload = "Upload";
+
+    /// <summary>Address lookups, per user, so one person cannot use up the app-wide Nominatim budget.</summary>
+    public const string Geocode = "Geocode";
 }
