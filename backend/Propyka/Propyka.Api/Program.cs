@@ -1,17 +1,24 @@
 ﻿using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Propyka.Api.Common;
+using Propyka.Api.Common.Geocoding;
 using Propyka.Api.Common.Storage;
 using Propyka.Api.Modules.Identity;
 using Propyka.Api.Modules.Identity.Domain;
 using Propyka.Api.Modules.Listings;
 using Propyka.Api.Persistence;
+using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
-builder.Services.AddControllers();
+// Enums travel as names ("Sale", "Published"), which is what the web app sends and
+// expects. Without this, ASP.NET uses numbers, and creating a listing from the
+// website fails with a 400 on "listingType".
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 builder.Services.AddDbContext<PropykaDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("PropykaDatabase")));
@@ -20,6 +27,7 @@ builder.Services.AddDbContext<PropykaDbContext>(options =>
 // here plus one new folder — no other change to this file.
 builder.Services.AddIdentityModule();
 builder.Services.AddListingsModule();
+builder.Services.AddGeocoding(builder.Configuration);
 
 builder.Services.Configure<FileStorageOptions>(
     builder.Configuration.GetSection(FileStorageOptions.SectionName));
@@ -86,6 +94,19 @@ builder.Services.AddRateLimiter(options =>
             factory: _ => new FixedWindowRateLimiterOptions
             {
                 PermitLimit = 30,
+                Window = TimeSpan.FromMinutes(1)
+            }));
+
+    // Map address lookups. The app as a whole may only send Nominatim one request
+    // a second, so each user gets a small share of that.
+    options.AddPolicy(RateLimitPolicies.Geocode, context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.User.Identity?.Name
+                ?? context.Connection.RemoteIpAddress?.ToString()
+                ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 10,
                 Window = TimeSpan.FromMinutes(1)
             }));
 });
@@ -161,10 +182,14 @@ app.UseStaticFiles();
 // the CORS headers the browser needs to read the error.
 app.UseCors("PropykaFrontend");
 
-// Before authorization: rate limiting a request is cheaper than authorizing it.
+app.UseAuthentication();
+
+// After authentication, so the Upload and Geocode policies can partition by the
+// signed-in user (before it, context.User is always empty and every user behind
+// one IP shares a bucket). Before authorization, because rate limiting a request
+// is cheaper than authorizing it.
 app.UseRateLimiter();
 
-app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
