@@ -61,6 +61,9 @@ public class PropertyAddressConfiguration : IEntityTypeConfiguration<PropertyAdd
         builder.Property(a => a.PostalCode).HasMaxLength(20).IsRequired();
         builder.Property(a => a.Country).HasMaxLength(80).IsRequired();
 
+        // Map-area search filters on the public point.
+        builder.HasIndex(a => new { a.PublicLatitude, a.PublicLongitude });
+
         builder.HasOne(a => a.Property)
             .WithOne(p => p.Address)
             .HasForeignKey<PropertyAddress>(a => a.PropertyId)

@@ -154,7 +154,68 @@ namespace Propyka.Api.Migrations
                     b.ToTable("UserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Propyka.Api.Data.ApplicationUser", b =>
+            modelBuilder.Entity("Propyka.Api.Common.Geocoding.GeocodeCacheEntry", b =>
+                {
+                    b.Property<string>("QueryKey")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ResultsJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.HasKey("QueryKey");
+
+                    b.ToTable("GeocodeCache", (string)null);
+                });
+
+            modelBuilder.Entity("Propyka.Api.Common.Plans.PlanPrice", b =>
+                {
+                    b.Property<string>("PlanName")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<int>("MonthlyPriceInr")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("OfferLabel")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedByUserId")
+                        .HasColumnType("text");
+
+                    b.Property<int>("YearlyPriceInr")
+                        .HasColumnType("integer");
+
+                    b.HasKey("PlanName");
+
+                    b.ToTable("PlanPrices", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            PlanName = "Free",
+                            MonthlyPriceInr = 0,
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 13, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            YearlyPriceInr = 0
+                        },
+                        new
+                        {
+                            PlanName = "Pro",
+                            MonthlyPriceInr = 49,
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 13, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            YearlyPriceInr = 499
+                        });
+                });
+
+            modelBuilder.Entity("Propyka.Api.Modules.Identity.Domain.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
@@ -238,7 +299,7 @@ namespace Propyka.Api.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
-            modelBuilder.Entity("Propyka.Api.Domain.Amenity", b =>
+            modelBuilder.Entity("Propyka.Api.Modules.Listings.Domain.Amenity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -326,7 +387,7 @@ namespace Propyka.Api.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Propyka.Api.Domain.Enquiry", b =>
+            modelBuilder.Entity("Propyka.Api.Modules.Listings.Domain.Enquiry", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -376,7 +437,7 @@ namespace Propyka.Api.Migrations
                     b.ToTable("Enquiries", (string)null);
                 });
 
-            modelBuilder.Entity("Propyka.Api.Domain.Favorite", b =>
+            modelBuilder.Entity("Propyka.Api.Modules.Listings.Domain.Favorite", b =>
                 {
                     b.Property<string>("UserId")
                         .HasColumnType("text");
@@ -396,7 +457,7 @@ namespace Propyka.Api.Migrations
                     b.ToTable("Favorites", (string)null);
                 });
 
-            modelBuilder.Entity("Propyka.Api.Domain.Property", b =>
+            modelBuilder.Entity("Propyka.Api.Modules.Listings.Domain.Property", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -458,6 +519,9 @@ namespace Propyka.Api.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
+                    b.Property<bool>("ShowExactLocation")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(160)
@@ -500,7 +564,7 @@ namespace Propyka.Api.Migrations
                     b.ToTable("Properties", (string)null);
                 });
 
-            modelBuilder.Entity("Propyka.Api.Domain.PropertyAddress", b =>
+            modelBuilder.Entity("Propyka.Api.Modules.Listings.Domain.PropertyAddress", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -543,6 +607,12 @@ namespace Propyka.Api.Migrations
                     b.Property<Guid>("PropertyId")
                         .HasColumnType("uuid");
 
+                    b.Property<double?>("PublicLatitude")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("PublicLongitude")
+                        .HasColumnType("double precision");
+
                     b.Property<string>("State")
                         .IsRequired()
                         .HasMaxLength(120)
@@ -555,10 +625,12 @@ namespace Propyka.Api.Migrations
                     b.HasIndex("PropertyId")
                         .IsUnique();
 
+                    b.HasIndex("PublicLatitude", "PublicLongitude");
+
                     b.ToTable("PropertyAddresses", (string)null);
                 });
 
-            modelBuilder.Entity("Propyka.Api.Domain.PropertyAmenity", b =>
+            modelBuilder.Entity("Propyka.Api.Modules.Listings.Domain.PropertyAmenity", b =>
                 {
                     b.Property<Guid>("PropertyId")
                         .HasColumnType("uuid");
@@ -573,7 +645,7 @@ namespace Propyka.Api.Migrations
                     b.ToTable("PropertyAmenities", (string)null);
                 });
 
-            modelBuilder.Entity("Propyka.Api.Domain.PropertyImage", b =>
+            modelBuilder.Entity("Propyka.Api.Modules.Listings.Domain.PropertyImage", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -620,7 +692,7 @@ namespace Propyka.Api.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("Propyka.Api.Data.ApplicationUser", null)
+                    b.HasOne("Propyka.Api.Modules.Identity.Domain.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -629,7 +701,7 @@ namespace Propyka.Api.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("Propyka.Api.Data.ApplicationUser", null)
+                    b.HasOne("Propyka.Api.Modules.Identity.Domain.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -644,7 +716,7 @@ namespace Propyka.Api.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Propyka.Api.Data.ApplicationUser", null)
+                    b.HasOne("Propyka.Api.Modules.Identity.Domain.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -653,22 +725,22 @@ namespace Propyka.Api.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("Propyka.Api.Data.ApplicationUser", null)
+                    b.HasOne("Propyka.Api.Modules.Identity.Domain.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Propyka.Api.Domain.Enquiry", b =>
+            modelBuilder.Entity("Propyka.Api.Modules.Listings.Domain.Enquiry", b =>
                 {
-                    b.HasOne("Propyka.Api.Domain.Property", "Property")
+                    b.HasOne("Propyka.Api.Modules.Listings.Domain.Property", "Property")
                         .WithMany("Enquiries")
                         .HasForeignKey("PropertyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Propyka.Api.Data.ApplicationUser", "Sender")
+                    b.HasOne("Propyka.Api.Modules.Identity.Domain.ApplicationUser", "Sender")
                         .WithMany()
                         .HasForeignKey("SenderUserId")
                         .OnDelete(DeleteBehavior.SetNull);
@@ -678,15 +750,15 @@ namespace Propyka.Api.Migrations
                     b.Navigation("Sender");
                 });
 
-            modelBuilder.Entity("Propyka.Api.Domain.Favorite", b =>
+            modelBuilder.Entity("Propyka.Api.Modules.Listings.Domain.Favorite", b =>
                 {
-                    b.HasOne("Propyka.Api.Domain.Property", "Property")
+                    b.HasOne("Propyka.Api.Modules.Listings.Domain.Property", "Property")
                         .WithMany()
                         .HasForeignKey("PropertyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Propyka.Api.Data.ApplicationUser", "User")
+                    b.HasOne("Propyka.Api.Modules.Identity.Domain.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -697,9 +769,9 @@ namespace Propyka.Api.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Propyka.Api.Domain.Property", b =>
+            modelBuilder.Entity("Propyka.Api.Modules.Listings.Domain.Property", b =>
                 {
-                    b.HasOne("Propyka.Api.Data.ApplicationUser", "Owner")
+                    b.HasOne("Propyka.Api.Modules.Identity.Domain.ApplicationUser", "Owner")
                         .WithMany()
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -708,26 +780,26 @@ namespace Propyka.Api.Migrations
                     b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("Propyka.Api.Domain.PropertyAddress", b =>
+            modelBuilder.Entity("Propyka.Api.Modules.Listings.Domain.PropertyAddress", b =>
                 {
-                    b.HasOne("Propyka.Api.Domain.Property", "Property")
+                    b.HasOne("Propyka.Api.Modules.Listings.Domain.Property", "Property")
                         .WithOne("Address")
-                        .HasForeignKey("Propyka.Api.Domain.PropertyAddress", "PropertyId")
+                        .HasForeignKey("Propyka.Api.Modules.Listings.Domain.PropertyAddress", "PropertyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Property");
                 });
 
-            modelBuilder.Entity("Propyka.Api.Domain.PropertyAmenity", b =>
+            modelBuilder.Entity("Propyka.Api.Modules.Listings.Domain.PropertyAmenity", b =>
                 {
-                    b.HasOne("Propyka.Api.Domain.Amenity", "Amenity")
+                    b.HasOne("Propyka.Api.Modules.Listings.Domain.Amenity", "Amenity")
                         .WithMany("Properties")
                         .HasForeignKey("AmenityId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Propyka.Api.Domain.Property", "Property")
+                    b.HasOne("Propyka.Api.Modules.Listings.Domain.Property", "Property")
                         .WithMany("Amenities")
                         .HasForeignKey("PropertyId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -738,9 +810,9 @@ namespace Propyka.Api.Migrations
                     b.Navigation("Property");
                 });
 
-            modelBuilder.Entity("Propyka.Api.Domain.PropertyImage", b =>
+            modelBuilder.Entity("Propyka.Api.Modules.Listings.Domain.PropertyImage", b =>
                 {
-                    b.HasOne("Propyka.Api.Domain.Property", "Property")
+                    b.HasOne("Propyka.Api.Modules.Listings.Domain.Property", "Property")
                         .WithMany("Images")
                         .HasForeignKey("PropertyId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -749,12 +821,12 @@ namespace Propyka.Api.Migrations
                     b.Navigation("Property");
                 });
 
-            modelBuilder.Entity("Propyka.Api.Domain.Amenity", b =>
+            modelBuilder.Entity("Propyka.Api.Modules.Listings.Domain.Amenity", b =>
                 {
                     b.Navigation("Properties");
                 });
 
-            modelBuilder.Entity("Propyka.Api.Domain.Property", b =>
+            modelBuilder.Entity("Propyka.Api.Modules.Listings.Domain.Property", b =>
                 {
                     b.Navigation("Address");
 

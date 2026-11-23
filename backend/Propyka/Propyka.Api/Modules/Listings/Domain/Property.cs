@@ -35,6 +35,12 @@ public class Property : IAuditable
 
     public int ViewCount { get; set; }
 
+    /// <summary>
+    /// When false (the default), the public sees an area of about 300 m instead of the
+    /// map pin, and the street lines of the address are hidden. The owner always sees both.
+    /// </summary>
+    public bool ShowExactLocation { get; set; }
+
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
     public DateTimeOffset? PublishedAt { get; set; }
