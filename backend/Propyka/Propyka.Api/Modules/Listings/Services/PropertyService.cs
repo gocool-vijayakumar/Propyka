@@ -67,6 +67,24 @@ public sealed class PropertyService : IPropertyService
             }
         }
 
+        if (query.MinLat is not null || query.MaxLat is not null || query.MinLng is not null || query.MaxLng is not null)
+        {
+            if (query.MinLat is not { } minLat || query.MaxLat is not { } maxLat
+                || query.MinLng is not { } minLng || query.MaxLng is not { } maxLng)
+            {
+                throw new DomainException("A map area needs minLat, maxLat, minLng and maxLng together.");
+            }
+
+            if (minLat > maxLat || minLng > maxLng)
+            {
+                throw new DomainException("The map area's minimum must not be above its maximum.");
+            }
+
+            // The public point, so an approximate listing can only be located to its area.
+            q = q.Where(p => p.Address!.PublicLatitude >= minLat && p.Address.PublicLatitude <= maxLat
+                          && p.Address.PublicLongitude >= minLng && p.Address.PublicLongitude <= maxLng);
+        }
+
         q = query.Sort switch
         {
             PropertySort.PriceAsc => q.OrderBy(p => p.Price).ThenBy(p => p.Id),
@@ -104,7 +122,10 @@ public sealed class PropertyService : IPropertyService
                     .ThenBy(i => i.SortOrder)
                     .Select(i => i.StorageKey)
                     .FirstOrDefault(),
-                p.PublishedAt
+                p.PublishedAt,
+                Latitude = p.Address.PublicLatitude,
+                Longitude = p.Address.PublicLongitude,
+                p.ShowExactLocation
             })
             .ToListAsync(ct);
 
@@ -114,7 +135,7 @@ public sealed class PropertyService : IPropertyService
                 r.Price, r.Currency, r.RentPeriod, r.Bedrooms, r.Bathrooms, r.AreaSqFt,
                 r.City, r.Locality,
                 r.PrimaryImageKey is null ? null : _storage.GetPublicUrl(r.PrimaryImageKey),
-                r.PublishedAt))
+                r.PublishedAt, r.Latitude, r.Longitude, r.ShowExactLocation))
             .ToList();
 
         return PagedResult<PropertySummaryResponse>.Create(page, pageSize, total, items);
@@ -139,7 +160,7 @@ public sealed class PropertyService : IPropertyService
             .Where(p => p.Id == property.Id)
             .ExecuteUpdateAsync(s => s.SetProperty(p => p.ViewCount, p => p.ViewCount + 1), ct);
 
-        return MapDetail(property);
+        return MapDetail(property, publicView: true);
     }
 
     public async Task<PropertyDetailResponse?> GetOwnedAsync(
@@ -148,7 +169,7 @@ public sealed class PropertyService : IPropertyService
         var property = await DetailQuery()
             .FirstOrDefaultAsync(p => p.Id == id && p.OwnerId == ownerId, ct);
 
-        return property is null ? null : MapDetail(property);
+        return property is null ? null : MapDetail(property, publicView: false);
     }
 
     public async Task<PagedResult<PropertySummaryResponse>> GetMineAsync(
@@ -187,7 +208,10 @@ public sealed class PropertyService : IPropertyService
                     .ThenBy(i => i.SortOrder)
                     .Select(i => i.StorageKey)
                     .FirstOrDefault(),
-                p.PublishedAt
+                p.PublishedAt,
+                Latitude = p.Address.PublicLatitude,
+                Longitude = p.Address.PublicLongitude,
+                p.ShowExactLocation
             })
             .ToListAsync(ct);
 
@@ -197,7 +221,7 @@ public sealed class PropertyService : IPropertyService
                 r.Price, r.Currency, r.RentPeriod, r.Bedrooms, r.Bathrooms, r.AreaSqFt,
                 r.City, r.Locality,
                 r.PrimaryImageKey is null ? null : _storage.GetPublicUrl(r.PrimaryImageKey),
-                r.PublishedAt))
+                r.PublishedAt, r.Latitude, r.Longitude, r.ShowExactLocation))
             .ToList();
 
         return PagedResult<PropertySummaryResponse>.Create(page, pageSize, total, items);
@@ -234,6 +258,7 @@ public sealed class PropertyService : IPropertyService
             PlotAreaSqFt = request.PlotAreaSqFt,
             YearBuilt = request.YearBuilt,
             Furnishing = request.Furnishing,
+            ShowExactLocation = request.ShowExactLocation,
             Address = BuildAddress(request.Address)
         };
 
@@ -245,6 +270,8 @@ public sealed class PropertyService : IPropertyService
                 AmenityId = amenityId
             });
         }
+
+        property.Address!.RefreshPublicLocation(property.ShowExactLocation);
 
         _db.Properties.Add(property);
         await _db.SaveChangesAsync(ct);
@@ -315,6 +342,7 @@ public sealed class PropertyService : IPropertyService
         property.PlotAreaSqFt = request.PlotAreaSqFt;
         property.YearBuilt = request.YearBuilt;
         property.Furnishing = request.Furnishing;
+        property.ShowExactLocation = request.ShowExactLocation;
 
         // Slug is deliberately not regenerated. Existing links and any search
         // engine that indexed the old one must keep working.
@@ -327,6 +355,8 @@ public sealed class PropertyService : IPropertyService
         {
             ApplyAddress(property.Address, request.Address);
         }
+
+        property.Address.RefreshPublicLocation(property.ShowExactLocation);
 
         var wanted = (request.AmenityIds ?? []).Distinct().ToHashSet();
         var existing = property.Amenities.Select(a => a.AmenityId).ToHashSet();
@@ -425,7 +455,12 @@ public sealed class PropertyService : IPropertyService
             .Include(p => p.Amenities)
                 .ThenInclude(pa => pa.Amenity);
 
-    private PropertyDetailResponse MapDetail(Property p)
+    /// <summary>
+    /// Builds the detail response. In the public view, a listing that does not show its
+    /// exact location gets coordinates rounded to 3 decimal places (about 110 m) and no
+    /// street lines. This happens here, on the server, so the exact point never leaves it.
+    /// </summary>
+    private PropertyDetailResponse MapDetail(Property p, bool publicView)
         => new(
             p.Id,
             p.Slug,
@@ -444,12 +479,10 @@ public sealed class PropertyService : IPropertyService
             p.YearBuilt,
             p.Furnishing,
             p.ViewCount,
+            p.ShowExactLocation,
             p.Address is null
                 ? new AddressResponse("", null, null, "", "", "", "", null, null)
-                : new AddressResponse(
-                    p.Address.Line1, p.Address.Line2, p.Address.Locality,
-                    p.Address.City, p.Address.State, p.Address.PostalCode,
-                    p.Address.Country, p.Address.Latitude, p.Address.Longitude),
+                : MapAddress(p.Address, publicView, hide: publicView && !p.ShowExactLocation),
             p.Images
                 .OrderByDescending(i => i.IsPrimary)
                 .ThenBy(i => i.SortOrder)
@@ -465,6 +498,15 @@ public sealed class PropertyService : IPropertyService
             new OwnerResponse(p.OwnerId, p.Owner?.FullName ?? "Propyka member"),
             p.CreatedAt,
             p.PublishedAt);
+
+    /// <summary>The public view always uses the stored public point (see PropertyAddress).</summary>
+    private static AddressResponse MapAddress(PropertyAddress a, bool publicView, bool hide) =>
+        new(
+            hide ? string.Empty : a.Line1,
+            hide ? null : a.Line2,
+            a.Locality, a.City, a.State, a.PostalCode, a.Country,
+            publicView ? a.PublicLatitude : a.Latitude,
+            publicView ? a.PublicLongitude : a.Longitude);
 
     private static PropertyAddress BuildAddress(AddressRequest request)
     {

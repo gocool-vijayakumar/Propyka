@@ -71,7 +71,10 @@ public sealed class FavoriteService : IFavoriteService
                     .ThenBy(i => i.SortOrder)
                     .Select(i => i.StorageKey)
                     .FirstOrDefault(),
-                f.Property.PublishedAt
+                f.Property.PublishedAt,
+                Latitude = f.Property.Address.PublicLatitude,
+                Longitude = f.Property.Address.PublicLongitude,
+                f.Property.ShowExactLocation
             })
             .ToListAsync(ct);
 
@@ -81,7 +84,7 @@ public sealed class FavoriteService : IFavoriteService
                 r.Price, r.Currency, r.RentPeriod, r.Bedrooms, r.Bathrooms, r.AreaSqFt,
                 r.City, r.Locality,
                 r.PrimaryImageKey is null ? null : _storage.GetPublicUrl(r.PrimaryImageKey),
-                r.PublishedAt))
+                r.PublishedAt, r.Latitude, r.Longitude, r.ShowExactLocation))
             .ToList();
 
         return PagedResult<PropertySummaryResponse>.Create(page, pageSize, total, items);

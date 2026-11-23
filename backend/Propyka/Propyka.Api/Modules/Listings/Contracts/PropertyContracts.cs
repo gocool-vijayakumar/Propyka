@@ -22,7 +22,11 @@ public sealed record PropertySummaryResponse(
     string City,
     string? Locality,
     string? PrimaryImageUrl,
-    DateTimeOffset? PublishedAt);
+    DateTimeOffset? PublishedAt,
+    double? Latitude,
+    double? Longitude,
+    /// <summary>False when Latitude and Longitude are the approximate (rounded) point.</summary>
+    bool IsExactLocation);
 
 /// <summary>Full shape for the detail page.</summary>
 public sealed record PropertyDetailResponse(
@@ -43,6 +47,7 @@ public sealed record PropertyDetailResponse(
     int? YearBuilt,
     FurnishingLevel? Furnishing,
     int ViewCount,
+    bool ShowExactLocation,
     AddressResponse Address,
     IReadOnlyList<PropertyImageResponse> Images,
     IReadOnlyList<AmenityResponse> Amenities,
@@ -98,7 +103,8 @@ public sealed record CreatePropertyRequest(
     [Range(1800, 2100)] int? YearBuilt,
     FurnishingLevel? Furnishing,
     [Required] AddressRequest Address,
-    int[]? AmenityIds);
+    int[]? AmenityIds,
+    bool ShowExactLocation = false);
 
 public sealed record AddressRequest(
     [Required, MaxLength(200)] string Line1,
@@ -148,6 +154,12 @@ public sealed record PropertySearchQuery
     [Range(0, 50)] public int? MinBedrooms { get; init; }
 
     public int[]? AmenityIds { get; init; }
+
+    /// <summary>Map area: all four or none. Matches the public point, never the exact one.</summary>
+    [Range(-90, 90)] public double? MinLat { get; init; }
+    [Range(-90, 90)] public double? MaxLat { get; init; }
+    [Range(-180, 180)] public double? MinLng { get; init; }
+    [Range(-180, 180)] public double? MaxLng { get; init; }
 
     public PropertySort Sort { get; init; } = PropertySort.Newest;
 
