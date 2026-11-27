@@ -25,6 +25,23 @@ export interface PagedResult<T> {
 
 export type UserStatusFilter = 'active' | 'deleted' | 'all';
 
+export interface AdminPlanPrice {
+  planName: string;
+  monthlyPriceInr: number;
+  yearlyPriceInr: number;
+  offerLabel: string | null;
+  /** False for Free: the free tier is never charged for. */
+  isEditable: boolean;
+  updatedAt: string;
+  updatedByName: string | null;
+}
+
+export interface UpdatePlanPrice {
+  monthlyPriceInr: number;
+  yearlyPriceInr: number;
+  offerLabel: string | null;
+}
+
 export interface UserQuery {
   search?: string;
   status?: UserStatusFilter;
@@ -75,6 +92,17 @@ export class Admin {
     return this.http.put<void>(
       `${this.apiUrl}/api/admin/users/${id}/roles`,
       { roles }
+    );
+  }
+
+  getPlanPrices(): Observable<AdminPlanPrice[]> {
+    return this.http.get<AdminPlanPrice[]>(`${this.apiUrl}/api/admin/plans`);
+  }
+
+  updatePlanPrice(planName: string, body: UpdatePlanPrice): Observable<AdminPlanPrice> {
+    return this.http.put<AdminPlanPrice>(
+      `${this.apiUrl}/api/admin/plans/${encodeURIComponent(planName)}/price`,
+      body
     );
   }
 }

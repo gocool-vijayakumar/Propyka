@@ -1,0 +1,93 @@
+<section class="head">
+  <div>
+    <span class="pk-label pk-label--brand">Plans</span>
+    <h1 class="head__title">Pricing</h1>
+    <p class="head__text">
+      Change what Pro costs, for example for a seasonal offer. New prices show on the
+      pricing page straight away. Plan limits are fixed in code and are not edited here.
+    </p>
+  </div>
+</section>
+
+@if (isLoading()) {
+  <div class="pk-spinner" aria-label="Loading prices"></div>
+} @else if (loadFailed()) {
+  <div class="pk-alert">We could not load the prices. Refresh the page to try again.</div>
+} @else {
+  <div class="cards">
+    @for (price of prices(); track price.planName) {
+      <article class="card pk-card">
+
+        <header class="card__head">
+          <h2 class="card__name">{{ price.planName }}</h2>
+          @if (!price.isEditable) {
+            <span class="tag">Freemium · always free</span>
+          } @else if (price.offerLabel) {
+            <span class="tag tag--offer">{{ price.offerLabel }}</span>
+          }
+        </header>
+
+        @if (!canEdit(price)) {
+          <dl class="summary">
+            <div><dt>Monthly</dt><dd>₹{{ price.monthlyPriceInr | number:'1.0-0' }}</dd></div>
+            <div><dt>Yearly</dt><dd>₹{{ price.yearlyPriceInr | number:'1.0-0' }}</dd></div>
+          </dl>
+          @if (price.isEditable) {
+            <p class="note">Only admins can change prices.</p>
+          }
+        } @else {
+          <form class="form" (ngSubmit)="save(price)">
+            <div class="row">
+              <label class="pk-field">
+                <span class="pk-field__label">Monthly price (₹)</span>
+                <input class="pk-input" type="number" min="1" step="1" inputmode="numeric"
+                       [name]="price.planName + '-monthly'"
+                       [ngModel]="draft(price.planName).monthlyPriceInr"
+                       (ngModelChange)="update(price.planName, 'monthlyPriceInr', $event)" />
+              </label>
+
+              <label class="pk-field">
+                <span class="pk-field__label">Yearly price (₹)</span>
+                <input class="pk-input" type="number" min="1" step="1" inputmode="numeric"
+                       [name]="price.planName + '-yearly'"
+                       [ngModel]="draft(price.planName).yearlyPriceInr"
+                       (ngModelChange)="update(price.planName, 'yearlyPriceInr', $event)" />
+              </label>
+            </div>
+
+            <label class="pk-field">
+              <span class="pk-field__label">Offer label (optional)</span>
+              <input class="pk-input" type="text" [maxlength]="offerMaxLength"
+                     placeholder="For example: Diwali offer, ends 15 Nov"
+                     [name]="price.planName + '-offer'"
+                     [ngModel]="draft(price.planName).offerLabel"
+                     (ngModelChange)="update(price.planName, 'offerLabel', $event)" />
+            </label>
+
+            @if (validationError(price.planName); as message) {
+              <p class="error" role="alert">{{ message }}</p>
+            } @else if (yearlyHint(price.planName); as hint) {
+              <p class="note">{{ hint }}</p>
+            }
+
+            <div class="actions">
+              <button type="button" class="pk-btn pk-btn--ghost"
+                      [disabled]="!isDirty(price) || savingPlan() === price.planName"
+                      (click)="reset(price)">Undo changes</button>
+              <button type="submit" class="pk-btn pk-btn--primary"
+                      [disabled]="!isDirty(price) || !!validationError(price.planName) || savingPlan() === price.planName">
+                {{ savingPlan() === price.planName ? 'Saving…' : 'Save prices' }}
+              </button>
+            </div>
+          </form>
+        }
+
+        <p class="meta">
+          Last changed {{ price.updatedAt | date:'d MMM y, h:mm a' }}
+          @if (price.updatedByName) { by {{ price.updatedByName }} }
+        </p>
+
+      </article>
+    }
+  </div>
+}
