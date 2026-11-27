@@ -45,6 +45,69 @@
   line-height: var(--lh-body);
 }
 
+/* Billing switch and seasonal offer */
+.billing {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-6);
+}
+
+.billing__switch {
+  display: inline-flex;
+  padding: 4px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+}
+
+.billing__option {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 8px 16px;
+  background: transparent;
+  border: 0;
+  border-radius: var(--r-pill);
+  color: var(--text-2);
+  font: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.billing__option--on {
+  background: var(--surface);
+  color: var(--text-1);
+  box-shadow: var(--shadow-sm);
+}
+
+.billing__save {
+  padding: 2px 8px;
+  background: var(--success-soft);
+  color: var(--success);
+  border-radius: var(--r-pill);
+  font-size: var(--fs-xs);
+}
+
+.offer {
+  padding: 6px 12px;
+  background: var(--brand-soft);
+  border: 1px solid var(--brand-line);
+  border-radius: var(--r-pill);
+  color: var(--brand-ink);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+.plan__billing-note {
+  margin-top: calc(var(--sp-3) * -1);
+  color: var(--text-3);
+  font-size: var(--fs-sm);
+}
+
 .plans {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

@@ -13,6 +13,26 @@
       </p>
     </header>
 
+    @if (!isLoading() && !loadFailed()) {
+      <div class="billing">
+        @if (offer()) {
+          <span class="offer">{{ offer() }}</span>
+        }
+
+        <div class="billing__switch" role="group" aria-label="Billing period">
+          <button type="button" class="billing__option" [class.billing__option--on]="billing() === 'monthly'"
+                  [attr.aria-pressed]="billing() === 'monthly'" (click)="billing.set('monthly')">Monthly</button>
+          <button type="button" class="billing__option" [class.billing__option--on]="billing() === 'yearly'"
+                  [attr.aria-pressed]="billing() === 'yearly'" (click)="billing.set('yearly')">
+            Yearly
+            @if (bestYearlySaving() > 0) {
+              <span class="billing__save">Save {{ bestYearlySaving() }}%</span>
+            }
+          </button>
+        </div>
+      </div>
+    }
+
     @if (isLoading()) {
       <div class="plans" aria-busy="true">
         @for (n of [1, 2]; track n) {
@@ -39,13 +59,26 @@
             </header>
 
             <p class="plan__price">
-              @if (plan.monthlyPriceInr === 0) {
+              @if (isFree(plan)) {
                 <span class="plan__amount">Free</span>
+                <span class="plan__period">forever</span>
               } @else {
-                <span class="plan__currency">₹</span><span class="plan__amount">{{ plan.monthlyPriceInr | number:'1.0-0' }}</span>
-                <span class="plan__period">/ month</span>
+                <span class="plan__currency">₹</span><span class="plan__amount">{{ price(plan) | number:'1.0-0' }}</span>
+                <span class="plan__period">{{ billing() === 'yearly' ? '/ year' : '/ month' }}</span>
               }
             </p>
+
+            @if (!isFree(plan)) {
+              <p class="plan__billing-note">
+                @if (billing() === 'yearly') {
+                  About ₹{{ perMonthOnYearly(plan) | number:'1.0-0' }} a month, billed once a year.
+                  @if (saving(plan) > 0) { You save {{ saving(plan) }}%. }
+                } @else {
+                  Or ₹{{ plan.yearlyPriceInr | number:'1.0-0' }} a year.
+                  @if (saving(plan) > 0) { Save {{ saving(plan) }}% by paying yearly. }
+                }
+              </p>
+            }
 
             <ul class="plan__features">
               @for (feature of plan.features; track feature) {
@@ -67,7 +100,7 @@
                   {{ isProPlan(plan) ? 'Create account to upgrade' : 'Create free account' }}
                 </a>
               } @else if (isProPlan(plan)) {
-                <a class="pk-btn pk-btn--primary" [href]="upgradeHref()">Request Pro</a>
+                <a class="pk-btn pk-btn--primary" [href]="upgradeHref(plan)">Request Pro</a>
                 <p class="plan__note">Pro is switched on by our team once payment is confirmed.</p>
               } @else {
                 <span class="plan__current">Included with your account</span>
